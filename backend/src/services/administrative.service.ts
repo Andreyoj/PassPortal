@@ -99,6 +99,52 @@ export async function pagarMulta(id: number): Promise<Multa | null> {
 	return mapFine(rows[0]);
 }
 
+export async function anularMulta(id: number): Promise<Multa | null> {
+	const conexion = await pool.getConnection();
+	try {
+		await conexion.beginTransaction();
+		const [result] = await conexion.query<ResultSetHeader>(
+			"UPDATE multas SET estado = 'ANULADA' WHERE id = :id AND estado = 'PENDIENTE'",
+			{ id },
+		);
+		if (result.affectedRows === 0) {
+			await conexion.rollback();
+			return null;
+		}
+		await conexion.query(
+			`INSERT INTO historial_estados
+				(ciudadano_id, entidad, entidad_id, estado_nuevo, detalle)
+			 SELECT ciudadano_id, 'MULTA', id, 'ANULADA', 'Multa anulada'
+			 FROM multas WHERE id = :id`,
+			{ id },
+		);
+		await conexion.commit();
+	} catch (error: unknown) {
+		await conexion.rollback();
+		throw error;
+	} finally {
+		conexion.release();
+	}
+	const [rows] = await pool.query<FineRow[]>('SELECT * FROM multas WHERE id = :id', { id });
+	return mapFine(rows[0]);
+}
+
+export async function obtenerMultasCiudadano(ciudadanoId: number): Promise<Multa[]> {
+	const [rows] = await pool.query<FineRow[]>(
+		'SELECT * FROM multas WHERE ciudadano_id = :ciudadanoId ORDER BY fecha_registro DESC, id DESC',
+		{ ciudadanoId },
+	);
+	return rows.map(mapFine);
+}
+
+export async function obtenerRestriccionesCiudadano(ciudadanoId: number): Promise<Restriccion[]> {
+	const [rows] = await pool.query<RestrictionRow[]>(
+		'SELECT * FROM arraigos WHERE ciudadano_id = :ciudadanoId ORDER BY fecha_inicio DESC, id DESC',
+		{ ciudadanoId },
+	);
+	return rows.map(mapRestriction);
+}
+
 export async function crearRestriccion(ciudadanoId: number, restriccion: NuevoArraigo): Promise<Restriccion> {
 	const [result] = await pool.query<ResultSetHeader>(
 		`INSERT INTO arraigos

@@ -2,7 +2,10 @@ import { Router } from 'express';
 import {
 	crearMulta,
 	crearRestriccion,
+	anularMulta,
 	levantarRestriccion,
+	obtenerMultasCiudadano,
+	obtenerRestriccionesCiudadano,
 	pagarMulta,
 	type NuevaMulta,
 	type NuevoArraigo,
@@ -57,6 +60,23 @@ administrativeRouter.patch('/multas/:id/pagar', async (req, res) => {
 	const multa = await pagarMulta(id);
 	if (!multa) throw new HttpError(404, 'MULTA_NO_ENCONTRADA', 'La multa no existe o ya no está pendiente.');
 	sendOk(res, multa);
+});
+
+administrativeRouter.patch('/multas/:id/anular', async (req, res) => {
+	const id = enteroPositivo(req.params.id, 'multa');
+	const multa = await anularMulta(id);
+	if (!multa) throw new HttpError(404, 'MULTA_NO_ENCONTRADA', 'La multa no existe o no está pendiente.');
+	sendOk(res, multa);
+});
+
+administrativeRouter.get('/ciudadanos/:id/multas', async (req, res) => {
+	const ciudadanoId = enteroPositivo(req.params.id, 'ciudadano');
+	sendOk(res, await obtenerMultasCiudadano(ciudadanoId));
+});
+
+administrativeRouter.get('/ciudadanos/:id/arraigos', async (req, res) => {
+	const ciudadanoId = enteroPositivo(req.params.id, 'ciudadano');
+	sendOk(res, await obtenerRestriccionesCiudadano(ciudadanoId));
 });
 
 administrativeRouter.post('/ciudadanos/:id/arraigos', async (req, res) => {
