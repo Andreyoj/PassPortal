@@ -1,6 +1,7 @@
 export type Sexo = 'M' | 'F' | 'X';
 export type TipoDocumento = 'PASAPORTE' | 'RESIDENCIA' | 'VISA' | 'PERMISO_TEMPORAL';
 export type EstadoDocumento = 'VIGENTE' | 'POR_VENCER' | 'VENCIDO';
+export type EstadoAlerta = 'VERDE' | 'AMARILLO' | 'ROJO';
 export type EstadoMulta = 'PENDIENTE' | 'PAGADA' | 'ANULADA';
 export type TipoRestriccion = 'ARRAIGO' | 'BLOQUEO_LEGAL' | 'RESTRICCION_SALIDA';
 export type TipoMovimiento = 'ENTRADA' | 'SALIDA';
