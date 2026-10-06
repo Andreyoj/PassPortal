@@ -1,1 +1,37 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+  @include mat.theme((
+    color: (primary: mat.$azure-palette, tertiary: mat.$blue-palette),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+:root {
+  --pp-rojo: #b3261e;
+  --pp-rojo-fondo: #fde8e6;
+  --pp-amarillo: #8a5a00;
+  --pp-amarillo-fondo: #fff1cc;
+  --pp-verde: #1b6e3c;
+  --pp-verde-fondo: #dff5e6;
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--mat-sys-surface-container-lowest, #fff);
+  color: var(--mat-sys-on-surface);
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.pp-snack-exito {
+  --mat-snack-bar-container-color: var(--pp-verde);
+  --mat-snack-bar-supporting-text-color: #fff;
+}
+.pp-snack-error {
+  --mat-snack-bar-container-color: var(--pp-rojo);
+  --mat-snack-bar-supporting-text-color: #fff;
+}

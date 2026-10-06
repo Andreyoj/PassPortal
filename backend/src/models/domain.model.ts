@@ -56,6 +56,7 @@ export interface Documento {
 	fechaVencimiento: string;
 	observaciones: string | null;
 	estado: EstadoDocumento;
+	estadoAlerta: EstadoAlerta;
 }
 
 export interface Multa {
@@ -103,4 +104,6 @@ export interface FichaCiudadano extends Ciudadano {
 	multas: Multa[];
 	restricciones: Restriccion[];
 	movimientos: MovimientoMigratorio[];
+	restriccionActiva: boolean;
+	totalMultasPendientes: number;
 }
