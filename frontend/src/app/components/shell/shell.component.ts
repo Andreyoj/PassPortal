@@ -6,19 +6,21 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { colorAvatar, iniciales } from '../../utils/presentation';
 
 interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatToolbarModule, MatSidenavModule, MatListModule, MatIconModule, MatButtonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatToolbarModule, MatSidenavModule, MatListModule, MatIconModule, MatButtonModule, MatTooltipModule],
   template: `
     <mat-sidenav-container class="shell">
       <mat-sidenav #menu class="shell__menu" [mode]="esMovil() ? 'over' : 'side'" [opened]="!esMovil()">
-        <div class="shell__marca"><mat-icon aria-hidden="true">travel_explore</mat-icon><div><strong>Pass Portal</strong><span>Gestión migratoria</span></div></div>
+        <div class="shell__marca"><img src="/images/pass-portal-mark.svg" alt="" /><div><strong>Pass Portal</strong><span>Gestión migratoria</span></div></div>
         <mat-nav-list>
           @for (enlace of enlaces; track enlace.ruta) {
             <a mat-list-item [routerLink]="enlace.ruta" routerLinkActive="shell__enlace--activo" (click)="cerrarEnMovil()">
@@ -29,8 +31,8 @@ interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
       </mat-sidenav>
       <mat-sidenav-content class="shell__contenido">
         <mat-toolbar class="shell__barra">
-          @if (esMovil()) { <button mat-icon-button type="button" aria-label="Abrir menú" (click)="menu.toggle()"><mat-icon>menu</mat-icon></button> }
-          <span class="shell__titulo">Panel de control migratorio</span><span class="shell__spacer"></span><span class="shell__avatar" aria-hidden="true">{{ iniciales() }}</span><span class="shell__usuario"><strong>{{ auth.empleado()?.nombreCompleto }}</strong><small>{{ auth.empleado()?.rol }}</small></span><button mat-button type="button" (click)="auth.logout()">Cerrar sesión</button>
+          @if (esMovil()) { <button mat-icon-button type="button" aria-label="Abrir menú" matTooltip="Abrir menú" (click)="menu.toggle()"><mat-icon>menu</mat-icon></button> }
+          <span class="shell__titulo">Panel de control migratorio</span><span class="shell__spacer"></span><span class="shell__avatar" [style.background]="colorAvatar(auth.empleado()?.nombreCompleto ?? '')" aria-hidden="true">{{ iniciales() }}</span><span class="shell__usuario"><strong>{{ auth.empleado()?.nombreCompleto }}</strong><small>{{ auth.empleado()?.rol }}</small></span><button mat-flat-button class="logout" type="button" (click)="auth.logout()" matTooltip="Cerrar sesión"><mat-icon>logout</mat-icon>Cerrar sesión</button>
         </mat-toolbar>
         <main class="shell__pagina"><router-outlet /><footer>Entorno de demostración con datos ficticios</footer></main>
       </mat-sidenav-content>
@@ -49,6 +51,7 @@ export class ShellComponent {
   ];
   protected cerrarEnMovil(): void { if (this.esMovil()) void this.menu().close(); }
   protected iniciales(): string {
-    return (this.auth.empleado()?.nombreCompleto ?? '').split(/\s+/).filter(Boolean).slice(0, 2).map((parte) => parte[0]).join('').toUpperCase();
+    return iniciales(this.auth.empleado()?.nombreCompleto ?? '');
   }
+  protected readonly colorAvatar = colorAvatar;
 }

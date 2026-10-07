@@ -10,16 +10,18 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import type { DocumentoAlerta, ResumenAlertas } from '../../models/alert.model';
 import { AuthService } from '../../services/auth.service';
+import { colorAvatar, etiquetaEstado, iniciales, textoDias } from '../../utils/presentation';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePipe, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule, MatSortModule, MatTableModule],
+  imports: [DatePipe, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule, MatSortModule, MatTableModule, MatTooltipModule],
   template: `
-    <header class="dashboard__header"><div><p class="eyebrow">Resumen operativo · {{ fechaActual | date:'EEEE, d MMMM yyyy' }}</p><h1>Buenos días, {{ nombreEmpleado() }}</h1><p>Anticipa vencimientos y toma decisiones con información clara.</p></div><button mat-stroked-button type="button" (click)="cargar()"><mat-icon>refresh</mat-icon>Actualizar</button></header>
+    <header class="dashboard__header"><div><p class="eyebrow">Resumen operativo · {{ fechaLarga() }}</p><h1>Buenos días, {{ nombreEmpleado() }}</h1><p>Anticipa vencimientos y toma decisiones con información clara.</p></div><button mat-stroked-button type="button" (click)="cargar()" matTooltip="Actualizar resumen"><mat-icon>refresh</mat-icon>Actualizar</button></header>
     @if (cargando()) { <mat-progress-bar mode="indeterminate" aria-label="Cargando panel" /> }
     @if (error()) { <mat-card class="dashboard__error"><mat-icon>error</mat-icon><span>{{ error() }}</span><button mat-button type="button" (click)="cargar()">Reintentar</button></mat-card> }
     @if (resumen(); as datos) {
@@ -32,23 +34,21 @@ import { AuthService } from '../../services/auth.service';
         <mat-card class="metric"><mat-icon>payments</mat-icon><span>Multas pendientes</span><strong>{{ datos.multasPendientes }}</strong><small>Gestión administrativa</small></mat-card>
         <mat-card class="metric"><mat-icon>gavel</mat-icon><span>Arraigos activos</span><strong>{{ datos.arraigosActivos }}</strong><small>Revisión prioritaria</small></mat-card>
       </section>
-      <section class="chart" aria-labelledby="chart-title"><h2 id="chart-title">Distribución documental</h2><div class="bars">
-        @for (barra of barras(datos); track barra.etiqueta) { <div class="bar"><div class="bar__value">{{ barra.valor }}</div><div class="bar__track"><span [style.height.%]="altura(barra.valor, datos.total)" [class]="'bar__fill ' + barra.clase"></span></div><span>{{ barra.etiqueta }}</span></div> }
-      </div><p class="sr-only">Vencidos {{ datos.vencidos }}, por vencer 30 días {{ datos.porVencer30 }}, por vencer 60 días {{ datos.porVencer60 }}, por vencer 90 días {{ datos.porVencer90 }}, vigentes {{ datos.vigentes }}.</p></section>
+      <section class="insights"><mat-card class="chart"><h2 id="chart-title">Distribución documental</h2><div class="donut-wrap"><svg viewBox="0 0 42 42" class="donut" role="img" aria-labelledby="chart-title"><circle class="donut__track" cx="21" cy="21" r="15.9" /><circle class="donut__segment donut__segment--rojo" cx="21" cy="21" r="15.9" [attr.stroke-dasharray]="porcentaje(datos.vencidos, datos.total) + ' ' + (100 - porcentaje(datos.vencidos, datos.total))" /><circle class="donut__segment donut__segment--amarillo" cx="21" cy="21" r="15.9" [attr.stroke-dasharray]="porcentaje(datos.porVencer30 + datos.porVencer60 + datos.porVencer90, datos.total) + ' ' + (100 - porcentaje(datos.porVencer30 + datos.porVencer60 + datos.porVencer90, datos.total))" [attr.stroke-dashoffset]="-porcentaje(datos.vencidos, datos.total)" /><circle class="donut__segment donut__segment--verde" cx="21" cy="21" r="15.9" [attr.stroke-dasharray]="porcentaje(datos.vigentes, datos.total) + ' ' + (100 - porcentaje(datos.vigentes, datos.total))" [attr.stroke-dashoffset]="-(porcentaje(datos.vencidos, datos.total) + porcentaje(datos.porVencer30 + datos.porVencer60 + datos.porVencer90, datos.total))" /></svg><strong>{{ datos.total }}</strong><span>documentos</span></div><div class="legend"><span><i class="rojo"></i>Vencidos <b>{{ datos.vencidos }}</b> ({{ porcentaje(datos.vencidos, datos.total) }}%)</span><span><i class="amarillo"></i>Por vencer <b>{{ datos.porVencer30 + datos.porVencer60 + datos.porVencer90 }}</b> ({{ porcentaje(datos.porVencer30 + datos.porVencer60 + datos.porVencer90, datos.total) }}%)</span><span><i class="verde"></i>Vigentes <b>{{ datos.vigentes }}</b> ({{ porcentaje(datos.vigentes, datos.total) }}%)</span></div></mat-card><mat-card class="priority"><h2>Atención prioritaria</h2>@for (a of urgentes(); track a.id) {<a [routerLink]="['/ciudadanos', a.ciudadanoId]"><span class="avatar" [style.background]="colorAvatar(a.nombreCiudadano)">{{ iniciales(a.nombreCiudadano) }}</span><span><strong>{{ a.nombreCiudadano }}</strong><small>{{ a.tipoDocumento }} · {{ textoDias(a.diasParaVencer) }}</small></span><mat-icon>chevron_right</mat-icon></a>}</mat-card></section>
     }
     <section class="dashboard__critical"><div class="section-heading"><div><h2>Alertas documentales</h2><span>{{ dataSource.filteredData.length }} resultados</span></div></div>
       <div class="filters">
         <mat-form-field appearance="outline"><mat-label>Estado</mat-label><mat-select [value]="estadoFiltro()" (selectionChange)="filtrarEstado($event.value)"><mat-option value="CRITICAS">Críticas</mat-option><mat-option value="ROJO">Vencidos</mat-option><mat-option value="AMARILLO">Por vencer</mat-option><mat-option value="TODOS">Todos</mat-option></mat-select></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Tipo de documento</mat-label><mat-select [value]="tipoFiltro()" (selectionChange)="tipoFiltro.set($event.value); aplicarFiltros()"><mat-option value="">Todos</mat-option>@for (tipo of tiposDocumentos(); track tipo) { <mat-option [value]="tipo">{{ tipo }}</mat-option> }</mat-select></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Rango</mat-label><mat-select [value]="rangoFiltro()" (selectionChange)="rangoFiltro.set($event.value); aplicarFiltros()"><mat-option value="">Todos</mat-option><mat-option value="30">Hasta 30 días</mat-option><mat-option value="60">31 a 60 días</mat-option><mat-option value="90">61 a 90 días</mat-option></mat-select></mat-form-field>
-        <mat-form-field appearance="outline"><mat-label>Buscar nombre o DPI</mat-label><input matInput (input)="cambiarTexto($event)" /></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Buscar nombre o DPI</mat-label><mat-icon matPrefix>search</mat-icon><input matInput (input)="cambiarTexto($event)" /></mat-form-field>
       </div>
       @if (!cargando() && !error() && dataSource.filteredData.length === 0) { <mat-card class="empty">No hay alertas para los filtros seleccionados.</mat-card> }
       @if (dataSource.filteredData.length > 0) { <div class="table-wrap"><table mat-table [dataSource]="dataSource" matSort aria-label="Alertas documentales">
-        <ng-container matColumnDef="ciudadano"><th mat-header-cell *matHeaderCellDef mat-sort-header>Ciudadano</th><td mat-cell *matCellDef="let a"><a class="citizen-link" [routerLink]="['/ciudadanos', a.ciudadanoId]"><span class="avatar">{{ iniciales(a.nombreCiudadano) }}</span><span><strong>{{ a.nombreCiudadano }}</strong><small>{{ a.dpi }}</small></span></a></td></ng-container>
+        <ng-container matColumnDef="ciudadano"><th mat-header-cell *matHeaderCellDef mat-sort-header>Ciudadano</th><td mat-cell *matCellDef="let a"><a class="citizen-link" [routerLink]="['/ciudadanos', a.ciudadanoId]"><span class="avatar" [style.background]="colorAvatar(a.nombreCiudadano)">{{ iniciales(a.nombreCiudadano) }}</span><span><strong>{{ a.nombreCiudadano }}</strong><small>{{ a.dpi }}</small></span><mat-icon class="row-chevron">chevron_right</mat-icon></a></td></ng-container>
         <ng-container matColumnDef="documento"><th mat-header-cell *matHeaderCellDef mat-sort-header>Documento</th><td mat-cell *matCellDef="let a">{{ a.tipoDocumento }} · {{ a.numero }}</td></ng-container>
         <ng-container matColumnDef="vencimiento"><th mat-header-cell *matHeaderCellDef mat-sort-header>Vencimiento</th><td mat-cell *matCellDef="let a">{{ a.fechaVencimiento | date:'dd/MM/yyyy' }}</td></ng-container>
-        <ng-container matColumnDef="estado"><th mat-header-cell *matHeaderCellDef>Estado</th><td mat-cell *matCellDef="let a"><span class="status" [class.status--rojo]="a.estadoAlerta === 'ROJO'" [class.status--amarillo]="a.estadoAlerta === 'AMARILLO'"><mat-icon>{{ a.estadoAlerta === 'ROJO' ? 'error' : 'warning' }}</mat-icon>{{ a.estadoDocumento }}<small> ({{ a.diasParaVencer < 0 ? -a.diasParaVencer + ' días vencido' : 'vence en ' + a.diasParaVencer + ' días' }})</small></span></td></ng-container>
+        <ng-container matColumnDef="estado"><th mat-header-cell *matHeaderCellDef>Estado</th><td mat-cell *matCellDef="let a"><span class="status" [class.status--rojo]="a.estadoAlerta === 'ROJO'" [class.status--amarillo]="a.estadoAlerta === 'AMARILLO'"><mat-icon>{{ a.estadoAlerta === 'ROJO' ? 'error' : 'warning' }}</mat-icon>{{ etiquetaEstado(a.estadoDocumento) }}<small>{{ textoDias(a.diasParaVencer) }}</small></span></td></ng-container>
         <tr mat-header-row *matHeaderRowDef="columnas"></tr><tr mat-row *matRowDef="let row; columns: columnas;"></tr>
       </table><mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25]" aria-label="Paginación de alertas" /></div> }
     </section>
@@ -71,8 +71,14 @@ export class DashboardComponent implements AfterViewInit {
   protected readonly tiposDocumentos = signal<string[]>([]);
   protected readonly dataSource = new MatTableDataSource<DocumentoAlerta>([]);
   protected readonly columnas = ['ciudadano', 'documento', 'vencimiento', 'estado'];
+  protected readonly colorAvatar = colorAvatar;
+  protected readonly iniciales = iniciales;
+  protected readonly etiquetaEstado = etiquetaEstado;
+  protected readonly textoDias = textoDias;
   protected nombreEmpleado(): string { return this.auth.empleado()?.nombreCompleto?.split(' ')[0] ?? 'equipo'; }
-  protected iniciales(nombre: string): string { return nombre.split(/\s+/).filter(Boolean).slice(0, 2).map((parte) => parte[0]).join('').toUpperCase(); }
+  protected fechaLarga(): string { return new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(this.fechaActual); }
+  protected porcentaje(valor: number, total: number): number { return total ? Math.round((valor / total) * 100) : 0; }
+  protected urgentes(): DocumentoAlerta[] { return [...this.dataSource.data].sort((a, b) => a.diasParaVencer - b.diasParaVencer).slice(0, 3); }
 
   constructor() {
     this.dataSource.filterPredicate = (a, filter) => {

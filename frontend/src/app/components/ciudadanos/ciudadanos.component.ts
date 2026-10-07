@@ -6,24 +6,26 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import type { Ciudadano } from '../../models/domain.model';
+import { colorAvatar, iniciales } from '../../utils/presentation';
 
 @Component({
   selector: 'app-ciudadanos',
-  imports: [RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule],
+  imports: [RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatTooltipModule],
   template: `
     <header class="page-header"><div><p class="eyebrow">Registro migratorio</p><h1>Ciudadanos</h1><p>Busca por nombre, apellidos o DPI.</p></div></header>
     <mat-form-field appearance="outline" class="search"><mat-label>Buscar ciudadano</mat-label><mat-icon matPrefix>search</mat-icon><input matInput (input)="buscar($event)" placeholder="Nombre o DPI" /></mat-form-field>
     @if (cargando()) { <mat-progress-bar mode="indeterminate" aria-label="Cargando ciudadanos" /> }
     @if (error()) { <mat-card class="message"><mat-icon>error</mat-icon>{{ error() }}<button mat-button (click)="cargar()">Reintentar</button></mat-card> }
-    @if (!cargando() && !error() && ciudadanos().length === 0) { <mat-card class="message">No se encontraron ciudadanos.</mat-card> }
+    @if (!cargando() && !error() && ciudadanos().length === 0) { <mat-card class="message empty-state"><svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="48" cy="36" r="22" fill="none" stroke="currentColor" stroke-width="4"/><path d="m64 52 20 18M38 36h20M48 26v20" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg><span>No se encontraron ciudadanos.</span></mat-card> }
     <section class="grid" aria-label="Resultados de ciudadanos">
       @for (ciudadano of ciudadanosVisibles(); track ciudadano.id) {
         <a class="citizen" [routerLink]="['/ciudadanos', ciudadano.id]">
-          <span class="avatar">{{ iniciales(ciudadano) }}</span><span><strong>{{ ciudadano.nombres }} {{ ciudadano.apellidos }}</strong><small>DPI {{ ciudadano.dpi }}</small><small>{{ ciudadano.nacionalidad }}</small></span><mat-icon>chevron_right</mat-icon>
+          <span class="avatar" [style.background]="colorAvatar(ciudadano.nombres + ' ' + ciudadano.apellidos)">{{ iniciales(ciudadano.nombres + ' ' + ciudadano.apellidos) }}</span><span><strong>{{ ciudadano.nombres }} {{ ciudadano.apellidos }}</strong><small>DPI {{ ciudadano.dpi }}</small><small>{{ ciudadano.nacionalidad }}</small></span><mat-icon matTooltip="Abrir ficha">chevron_right</mat-icon>
         </a>
       }
     </section>
@@ -54,5 +56,6 @@ export class CiudadanosComponent {
     const inicio = this.pageIndex() * this.pageSize();
     return this.ciudadanos().slice(inicio, inicio + this.pageSize());
   }
-  protected iniciales(c: Ciudadano): string { return `${c.nombres[0] ?? ''}${c.apellidos[0] ?? ''}`.toUpperCase(); }
+  protected readonly colorAvatar = colorAvatar;
+  protected readonly iniciales = iniciales;
 }
