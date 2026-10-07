@@ -46,8 +46,8 @@ export class ShellComponent {
   private readonly menu = viewChild.required<MatSidenav>('menu');
   protected readonly esMovil = toSignal(this.breakpoint.observe('(max-width: 960px)').pipe(map((estado) => estado.matches)), { initialValue: false });
   protected readonly enlaces: readonly EnlaceMenu[] = [
-    { ruta: '/dashboard', etiqueta: 'Panel de alertas', icono: 'notifications_active', roles: ['OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'] },
-    { ruta: '/ciudadanos', etiqueta: 'Ciudadanos', icono: 'badge', roles: ['OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'] },
+    { ruta: '/dashboard', etiqueta: 'Panel de alertas', icono: 'notifications_active', roles: ['PERSONAL', 'ADMINISTRADOR'] },
+    { ruta: '/ciudadanos', etiqueta: 'Ciudadanos', icono: 'badge', roles: ['PERSONAL', 'ADMINISTRADOR'] },
     { ruta: '/perfil', etiqueta: 'Mi perfil', icono: 'account_circle' },
     { ruta: '/admin/usuarios', etiqueta: 'Usuarios', icono: 'manage_accounts', roles: ['ADMINISTRADOR'] },
   ];

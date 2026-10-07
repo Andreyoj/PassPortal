@@ -42,7 +42,7 @@ function texto(body: Record<string, unknown>, campo: string, maximo: number): st
 
 export const administrativeRouter = Router();
 
-administrativeRouter.post('/ciudadanos/:id/multas', requireRole('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'), async (req, res) => {
+administrativeRouter.post('/ciudadanos/:id/multas', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const ciudadanoId = enteroPositivo(req.params.id, 'ciudadano');
 	const body = objetoBody(req.body);
 	const monto = body.monto;
@@ -57,14 +57,14 @@ administrativeRouter.post('/ciudadanos/:id/multas', requireRole('OPERADOR', 'SUP
 	sendOk(res, await crearMulta(ciudadanoId, multa, req.empleado!.id), 201);
 });
 
-administrativeRouter.patch('/multas/:id/pagar', requireRole('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'), async (req, res) => {
+administrativeRouter.patch('/multas/:id/pagar', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const id = enteroPositivo(req.params.id, 'multa');
 	const multa = await pagarMulta(id);
 	if (!multa) throw new HttpError(404, 'MULTA_NO_ENCONTRADA', 'La multa no existe o ya no está pendiente.');
 	sendOk(res, multa);
 });
 
-administrativeRouter.patch('/multas/:id/anular', requireRole('SUPERVISOR', 'ADMINISTRADOR'), async (req, res) => {
+administrativeRouter.patch('/multas/:id/anular', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const id = enteroPositivo(req.params.id, 'multa');
 	const multa = await anularMulta(id, req.empleado!.id);
 	if (!multa) throw new HttpError(404, 'MULTA_NO_ENCONTRADA', 'La multa no existe o no está pendiente.');
@@ -81,7 +81,7 @@ administrativeRouter.get('/ciudadanos/:id/arraigos', async (req, res) => {
 	sendOk(res, await obtenerRestriccionesCiudadano(ciudadanoId));
 });
 
-administrativeRouter.post('/ciudadanos/:id/arraigos', requireRole('SUPERVISOR', 'ADMINISTRADOR'), async (req, res) => {
+administrativeRouter.post('/ciudadanos/:id/arraigos', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const ciudadanoId = enteroPositivo(req.params.id, 'ciudadano');
 	const body = objetoBody(req.body);
 	const tipo = body.tipo;
@@ -107,7 +107,7 @@ administrativeRouter.post('/ciudadanos/:id/arraigos', requireRole('SUPERVISOR', 
 	sendOk(res, await crearRestriccion(ciudadanoId, restriccion, req.empleado!.id), 201);
 });
 
-administrativeRouter.patch('/arraigos/:id/levantar', requireRole('SUPERVISOR', 'ADMINISTRADOR'), async (req, res) => {
+administrativeRouter.patch('/arraigos/:id/levantar', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const id = enteroPositivo(req.params.id, 'arraigo');
 	const restriccion = await levantarRestriccion(id, req.empleado!.id);
 	if (!restriccion) throw new HttpError(404, 'ARRAIGO_NO_ENCONTRADO', 'El arraigo no existe o ya está levantado.');

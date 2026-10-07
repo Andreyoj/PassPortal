@@ -2,8 +2,7 @@ USE pass_portal_IN5BM;
 
 INSERT IGNORE INTO roles (id, nombre, descripcion) VALUES
   (1, 'ADMINISTRADOR', 'Acceso total al sistema y gestión de empleados'),
-  (2, 'SUPERVISOR', 'Supervisa operaciones, multas y arraigos'),
-  (3, 'OPERADOR', 'Consulta y actualización de fichas en ventanilla'),
+  (2, 'PERSONAL', 'Consulta y gestión de fichas, multas y arraigos'),
   (4, 'USUARIO', 'Cuenta normal con acceso a su perfil personal');
 
 INSERT IGNORE INTO tipos_documento (id, codigo, nombre) VALUES

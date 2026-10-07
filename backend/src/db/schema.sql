@@ -10,7 +10,7 @@ CREATE DATABASE IF NOT EXISTS pass_portal_IN5BM
 USE pass_portal_IN5BM;
 
 -- ------------------------------------------------------------
--- Roles y empleados (operadores del sistema)
+-- Roles y empleados del personal del sistema
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS roles (
   id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,

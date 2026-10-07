@@ -18,7 +18,7 @@ import type { EmpleadoListado, Rol } from '../../models/auth.model';
 })
 export class AdminUsersComponent {
   private readonly http = inject(HttpClient); private readonly fb = inject(FormBuilder);
-  protected readonly roles: Rol[] = ['USUARIO','OPERADOR','SUPERVISOR','ADMINISTRADOR']; protected readonly usuarios = signal<EmpleadoListado[]>([]); protected readonly editandoId = signal<number | null>(null);
+  protected readonly roles: Rol[] = ['USUARIO','PERSONAL','ADMINISTRADOR']; protected readonly usuarios = signal<EmpleadoListado[]>([]); protected readonly editandoId = signal<number | null>(null);
   protected readonly form = this.fb.nonNullable.group({nombreCompleto:['',Validators.required],usuario:['',Validators.required],correo:['',[Validators.required,Validators.email]],password:['',[Validators.required,Validators.minLength(10)]],rol:['USUARIO' as Rol,Validators.required]});
   constructor(){this.cargar();}
   private endpoint = `${environment.apiUrl}/api/auth`;

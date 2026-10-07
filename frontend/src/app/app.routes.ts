@@ -15,19 +15,19 @@ export const routes: Routes = [
       { path: 'admin/usuarios', canActivate: [adminGuard], title: 'Gestión de usuarios · Pass Portal', loadComponent: () => import('./components/admin-users/admin-users.component').then((m) => m.AdminUsersComponent) },
       {
         path: 'dashboard',
-        canActivate: [roleGuard('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR')],
+        canActivate: [roleGuard('PERSONAL', 'ADMINISTRADOR')],
         title: 'Panel de alertas · Pass Portal',
         loadComponent: () => import('./components/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
         path: 'ciudadanos',
-        canActivate: [roleGuard('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR')],
+        canActivate: [roleGuard('PERSONAL', 'ADMINISTRADOR')],
         title: 'Ciudadanos · Pass Portal',
         loadComponent: () => import('./components/ciudadanos/ciudadanos.component').then((m) => m.CiudadanosComponent),
       },
       {
         path: 'ciudadanos/:id',
-        canActivate: [roleGuard('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR')],
+        canActivate: [roleGuard('PERSONAL', 'ADMINISTRADOR')],
         title: 'Ficha del ciudadano · Pass Portal',
         loadComponent: () => import('./components/ficha/ficha.component').then((m) => m.FichaComponent),
       },

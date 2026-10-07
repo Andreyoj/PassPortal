@@ -1,6 +1,6 @@
 # Pass Portal
 
-Sistema de Gestión Migratoria (SGM): plataforma interna para operadores y empleados públicos de control migratorio. Permite consultar y actualizar fichas de ciudadanos, recibir alertas proactivas de documentos por vencer y gestionar arraigos, bloqueos legales y multas.
+Sistema de Gestión Migratoria (SGM): plataforma interna para personal de control migratorio. Permite consultar y actualizar fichas de ciudadanos, recibir alertas proactivas de documentos por vencer y gestionar arraigos, bloqueos legales y multas.
 
 **Desarrollador:** André Emanuel Yoj Gómez
 **Institución:** Centro Educativo Técnico Kinal, Perito en Informática
@@ -40,7 +40,7 @@ Para crear empleados adicionales con rol:
 pnpm --filter backend create-employee
 ```
 
-El script acepta los roles `OPERADOR`, `SUPERVISOR` o `ADMINISTRADOR`.
+El script acepta los roles `PERSONAL` o `ADMINISTRADOR`.
 
 ### Datos de demostración
 
@@ -58,8 +58,8 @@ Para cargar diez cuentas de prueba con todos los roles, ejecuta después de
 backend/src/db/seed-test-users.sql
 ```
 
-Las cuentas `usuario1` a `usuario4`, `operador1` a `operador2`,
-`supervisor1` a `supervisor2` y `administrador1` a `administrador2` usan como
+Las cuentas `usuario1` a `usuario4`, `personal1` a `personal4` y
+`administrador1` a `administrador2` usan como
 contraseña el mismo nombre de usuario seguido de `@passportal.com`. Son
 credenciales exclusivas para desarrollo local.
 
@@ -92,11 +92,11 @@ Con el backend en ejecución, el estado de la API se consulta en `http://localho
 
 Todas las rutas `/api`, salvo `/api/health` y `/api/auth/login`, requieren `Authorization: Bearer <token>`.
 
-| Endpoint | OPERADOR | SUPERVISOR | ADMINISTRADOR |
+| Endpoint | USUARIO | PERSONAL | ADMINISTRADOR |
 | --- | --- | --- | --- |
-| `GET /api/alertas`, ciudadanos y fichas | Sí | Sí | Sí |
-| `PUT /api/ciudadanos/:id` y foto | Sí | Sí | Sí |
-| `POST /api/ciudadanos/:id/multas` y pagar | Sí | Sí | Sí |
+| `GET /api/alertas`, ciudadanos y fichas | No | Sí | Sí |
+| `PUT /api/ciudadanos/:id` y foto | No | Sí | Sí |
+| `POST /api/ciudadanos/:id/multas` y pagar | No | Sí | Sí |
 | `PATCH /api/multas/:id/anular` | No | Sí | Sí |
 | `POST /api/ciudadanos/:id/arraigos` y levantar | No | Sí | Sí |
 | `GET /api/auth/me` | Sesión | Sesión | Sesión |

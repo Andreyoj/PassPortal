@@ -51,7 +51,7 @@ const cargarUnaFoto: RequestHandler = (req, res, next): void => {
 
 export const photoRouter = Router();
 
-photoRouter.post('/ciudadanos/:id/foto', requireRole('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'), cargarUnaFoto, async (req, res) => {
+photoRouter.post('/ciudadanos/:id/foto', requireRole('PERSONAL', 'ADMINISTRADOR'), cargarUnaFoto, async (req, res) => {
 	const id = Number(req.params.id);
 	if (!Number.isSafeInteger(id) || id <= 0) {
 		if (req.file) await fs.rm(req.file.path, { force: true });

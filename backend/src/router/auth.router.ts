@@ -56,17 +56,17 @@ authRouter.post('/users', authenticate, async (req, res) => {
 	if (req.empleado?.rol !== 'ADMINISTRADOR') throw new HttpError(403, 'PERMISOS_INSUFICIENTES', 'Solo un administrador puede gestionar usuarios.');
 	const datos = datosUsuario(req.body);
 	const rol = String((req.body as Record<string, unknown>).rol ?? '');
-	if (!['USUARIO', 'OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'].includes(rol)) throw new HttpError(400, 'ROL_INVALIDO', 'El rol indicado no es válido.');
+	if (!['USUARIO', 'PERSONAL', 'ADMINISTRADOR'].includes(rol)) throw new HttpError(400, 'ROL_INVALIDO', 'El rol indicado no es válido.');
 	const empleado = await registrarUsuario(datos);
-	const actualizado = await administrarEmpleado(empleado.id, { nombreCompleto: datos.nombreCompleto, correo: datos.correo, rol: rol as 'USUARIO' | 'OPERADOR' | 'SUPERVISOR' | 'ADMINISTRADOR' });
+	const actualizado = await administrarEmpleado(empleado.id, { nombreCompleto: datos.nombreCompleto, correo: datos.correo, rol: rol as 'USUARIO' | 'PERSONAL' | 'ADMINISTRADOR' });
 	sendOk(res, actualizado, 201);
 });
 
 authRouter.put('/users/:id', authenticate, async (req, res) => {
 	if (req.empleado?.rol !== 'ADMINISTRADOR') throw new HttpError(403, 'PERMISOS_INSUFICIENTES', 'Solo un administrador puede gestionar usuarios.');
 	const value = req.body as Record<string, unknown>;
-	const rol = value.rol as 'USUARIO' | 'OPERADOR' | 'SUPERVISOR' | 'ADMINISTRADOR' | undefined;
-	if (rol && !['USUARIO', 'OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'].includes(rol)) throw new HttpError(400, 'ROL_INVALIDO', 'El rol indicado no es válido.');
+	const rol = value.rol as 'USUARIO' | 'PERSONAL' | 'ADMINISTRADOR' | undefined;
+	if (rol && !['USUARIO', 'PERSONAL', 'ADMINISTRADOR'].includes(rol)) throw new HttpError(400, 'ROL_INVALIDO', 'El rol indicado no es válido.');
 	const empleado = await administrarEmpleado(Number(req.params.id), { usuario: String(value.usuario ?? '').trim(), nombreCompleto: String(value.nombreCompleto ?? '').trim(), correo: String(value.correo ?? '').trim(), rol, activo: typeof value.activo === 'boolean' ? value.activo : undefined, password: typeof value.password === 'string' && value.password ? value.password : undefined });
 	if (!empleado) throw new HttpError(404, 'EMPLEADO_NO_ENCONTRADO', 'El usuario no existe.');
 	sendOk(res, empleado);

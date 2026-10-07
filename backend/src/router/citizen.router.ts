@@ -23,7 +23,7 @@ citizenRouter.get('/:id', async (req, res) => {
 	sendOk(res, ficha);
 });
 
-citizenRouter.put('/:id', requireRole('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'), async (req, res) => {
+citizenRouter.put('/:id', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const id = Number(req.params.id);
 	if (!Number.isSafeInteger(id) || id <= 0) {
 		throw new HttpError(400, 'ID_CIUDADANO_INVALIDO', 'El id del ciudadano debe ser un entero positivo.');

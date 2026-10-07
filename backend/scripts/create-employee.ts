@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import { pool } from '../src/db';
 
 const terminal = readline.createInterface({ input, output });
-const roles = new Set(['OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR']);
+const roles = new Set(['PERSONAL', 'ADMINISTRADOR']);
 
 async function main(): Promise<void> {
 	try {
@@ -13,7 +13,7 @@ async function main(): Promise<void> {
 		const nombre = (await terminal.question('Nombre completo: ')).trim();
 		const correo = (await terminal.question('Correo: ')).trim();
 		const password = await terminal.question('Contraseña (mínimo 10 caracteres): ');
-		const rol = (await terminal.question('Rol (OPERADOR, SUPERVISOR o ADMINISTRADOR): ')).trim().toUpperCase();
+		const rol = (await terminal.question('Rol (PERSONAL o ADMINISTRADOR): ')).trim().toUpperCase();
 		if (!usuario || !nombre || !correo || password.length < 10 || !roles.has(rol)) {
 			throw new Error('Datos inválidos: la contraseña debe tener al menos 10 caracteres y el rol debe ser válido.');
 		}
