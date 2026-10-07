@@ -42,6 +42,15 @@ pnpm --filter backend create-employee
 
 El script acepta los roles `OPERADOR`, `SUPERVISOR` o `ADMINISTRADOR`.
 
+### Datos de demostración
+
+Después de cargar `schema.sql` y `seed.sql`, ejecuta opcionalmente
+`backend/src/db/seed-demo.sql`. Este archivo agrega 40 ciudadanos ficticios,
+80 documentos, multas, restricciones y movimientos en puestos de control
+guatemaltecos. No agrega fotografías: la interfaz utiliza avatares con
+iniciales. Los datos demo pueden recargarse porque el script reemplaza su
+rango de registros (`id` 7 a 46).
+
 ## Base de datos
 La aplicación usa MySQL con la base `pass_portal_IN5BM`. Configura las credenciales locales en `backend/.env` y ejecuta, en este orden, `backend/src/db/schema.sql` y `backend/src/db/seed.sql`.
 
