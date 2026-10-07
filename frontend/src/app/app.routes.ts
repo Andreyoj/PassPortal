@@ -1,10 +1,13 @@
 import type { Routes } from '@angular/router';
 import { ShellComponent } from './components/shell/shell.component';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
+  { path: 'login', title: 'Iniciar sesión · Pass Portal', loadComponent: () => import('./components/login/login.component').then((m) => m.LoginComponent) },
   {
     path: '',
     component: ShellComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {

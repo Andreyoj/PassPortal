@@ -7,6 +7,7 @@ import { actualizarFotoCiudadano } from '../services/photo.service';
 import { FOTOS_DIR } from '../utils/paths';
 import { HttpError } from '../utils/http-error';
 import { sendOk } from '../utils/http-response';
+import { requireRole } from '../middleware/auth.middleware';
 
 const tiposImagen = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const extensiones: Record<string, string> = {
@@ -50,7 +51,7 @@ const cargarUnaFoto: RequestHandler = (req, res, next): void => {
 
 export const photoRouter = Router();
 
-photoRouter.post('/ciudadanos/:id/foto', cargarUnaFoto, async (req, res) => {
+photoRouter.post('/ciudadanos/:id/foto', requireRole('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'), cargarUnaFoto, async (req, res) => {
 	const id = Number(req.params.id);
 	if (!Number.isSafeInteger(id) || id <= 0) {
 		if (req.file) await fs.rm(req.file.path, { force: true });

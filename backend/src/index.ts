@@ -4,11 +4,13 @@ import type { Server } from 'node:http';
 import { cerrarPool, verificarConexion } from './db';
 import { app } from './server';
 import { FOTOS_DIR } from './utils/paths';
+import { validarConfiguracionJwt } from './middleware/auth.middleware';
 
 const PUERTO = Number(process.env.PORT ?? 3000);
 
 async function iniciar(): Promise<void> {
 	fs.mkdirSync(FOTOS_DIR, { recursive: true });
+	validarConfiguracionJwt();
 
 	await verificarConexion();
 	console.log('[DB] Conexión a MySQL verificada.');

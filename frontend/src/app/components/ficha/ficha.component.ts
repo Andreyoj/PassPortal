@@ -12,6 +12,7 @@ import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
 import type { FichaCiudadano, Multa, Restriccion, TipoRestriccion } from '../../models/domain.model';
 import { AdministrativeDialogComponent, ConfirmDialogComponent } from './administrative-dialog.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-ficha',
@@ -24,8 +25,8 @@ import { AdministrativeDialogComponent, ConfirmDialogComponent } from './adminis
       <header class="profile"><div class="photo-wrap"><img [src]="fotoPreview() || foto(c.fotoUrl)" [alt]="'Fotografía de ' + c.nombres + ' ' + c.apellidos" /><label class="upload"><mat-icon>photo_camera</mat-icon>Cargar foto desde el equipo<input type="file" accept="image/jpeg,image/png,image/webp" (change)="seleccionarFoto($event)" /></label></div><div><p class="eyebrow">Ficha ciudadana</p><h1>{{ c.nombres }} {{ c.apellidos }}</h1><p>DPI {{ c.dpi }} · {{ c.nacionalidad }}</p></div></header>
       <mat-tab-group>
         <mat-tab label="Documentos"><div class="tab-content">@for (d of c.documentos; track d.id) { <mat-card class="row"><div><strong>{{ d.tipoDocumentoId }} · {{ d.numero }}</strong><span>{{ d.paisEmisor }} · vence {{ d.fechaVencimiento | date:'dd/MM/yyyy' }}</span></div><span class="status" [class.status--rojo]="d.estadoAlerta === 'ROJO'" [class.status--amarillo]="d.estadoAlerta === 'AMARILLO'"><mat-icon>{{ d.estadoAlerta === 'ROJO' ? 'error' : d.estadoAlerta === 'AMARILLO' ? 'warning' : 'check_circle' }}</mat-icon>{{ d.estado }}</span></mat-card> } @if (!c.documentos.length) { <p>No hay documentos registrados.</p> }</div></mat-tab>
-        <mat-tab label="Multas"><div class="tab-content"><div class="tab-heading"><p class="total">Pendiente: <strong>Q {{ c.totalMultasPendientes | number:'1.2-2' }}</strong></p><button mat-flat-button (click)="abrirFormulario('multa')"><mat-icon>add</mat-icon>Registrar multa</button></div>@for (m of c.multas; track m.id) { <mat-card class="row"><div><strong>{{ m.concepto }}</strong><span>{{ m.fechaRegistro | date:'dd/MM/yyyy' }}</span></div><div class="actions"><span>Q {{ m.monto | number:'1.2-2' }} · {{ m.estado }}</span>@if (m.estado === 'PENDIENTE') { <button mat-button (click)="confirmarMulta(m, 'pagar')">Pagar</button><button mat-button color="warn" (click)="confirmarMulta(m, 'anular')">Anular</button> }</div></mat-card> } @if (!c.multas.length) { <p>No hay multas registradas.</p> }</div></mat-tab>
-        <mat-tab label="Arraigos"><div class="tab-content"><div class="tab-heading"><span></span><button mat-flat-button (click)="abrirFormulario('arraigo')"><mat-icon>add</mat-icon>Registrar arraigo</button></div>@for (r of c.restricciones; track r.id) { <mat-card class="row"><div><strong>{{ r.tipo }}</strong><span>{{ r.motivo }} · {{ r.autoridad }}</span></div><div class="actions"><span>{{ r.activo ? 'ACTIVO' : 'LEVANTADO' }}</span>@if (r.activo) { <button mat-button (click)="confirmarArraigo(r)">Levantar</button> }</div></mat-card> } @if (!c.restricciones.length) { <p>No hay arraigos ni bloqueos registrados.</p> }</div></mat-tab>
+        <mat-tab label="Multas"><div class="tab-content"><div class="tab-heading"><p class="total">Pendiente: <strong>Q {{ c.totalMultasPendientes | number:'1.2-2' }}</strong></p>@if (auth.tieneRol('OPERADOR','SUPERVISOR','ADMINISTRADOR')) { <button mat-flat-button (click)="abrirFormulario('multa')"><mat-icon>add</mat-icon>Registrar multa</button>}</div>@for (m of c.multas; track m.id) { <mat-card class="row"><div><strong>{{ m.concepto }}</strong><span>{{ m.fechaRegistro | date:'dd/MM/yyyy' }}</span></div><div class="actions"><span>Q {{ m.monto | number:'1.2-2' }} · {{ m.estado }}</span>@if (m.estado === 'PENDIENTE' && auth.tieneRol('OPERADOR','SUPERVISOR','ADMINISTRADOR')) { <button mat-button (click)="confirmarMulta(m, 'pagar')">Pagar</button>}@if (m.estado === 'PENDIENTE' && auth.tieneRol('SUPERVISOR','ADMINISTRADOR')) { <button mat-button color="warn" (click)="confirmarMulta(m, 'anular')">Anular</button> }</div></mat-card> } @if (!c.multas.length) { <p>No hay multas registradas.</p> }</div></mat-tab>
+        <mat-tab label="Arraigos"><div class="tab-content"><div class="tab-heading"><span></span>@if (auth.tieneRol('SUPERVISOR','ADMINISTRADOR')) { <button mat-flat-button (click)="abrirFormulario('arraigo')"><mat-icon>add</mat-icon>Registrar arraigo</button>}</div>@for (r of c.restricciones; track r.id) { <mat-card class="row"><div><strong>{{ r.tipo }}</strong><span>{{ r.motivo }} · {{ r.autoridad }}</span></div><div class="actions"><span>{{ r.activo ? 'ACTIVO' : 'LEVANTADO' }}</span>@if (r.activo && auth.tieneRol('SUPERVISOR','ADMINISTRADOR')) { <button mat-button (click)="confirmarArraigo(r)">Levantar</button> }</div></mat-card> } @if (!c.restricciones.length) { <p>No hay arraigos ni bloqueos registrados.</p> }</div></mat-tab>
       </mat-tab-group>
     }
   `,
@@ -33,6 +34,7 @@ import { AdministrativeDialogComponent, ConfirmDialogComponent } from './adminis
 })
 export class FichaComponent {
   private readonly api = inject(ApiService);
+  protected readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);

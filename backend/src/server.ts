@@ -3,6 +3,7 @@ import express, { type Application } from 'express';
 import { apiRouter } from './router';
 import { errorHandler, notFoundHandler } from './utils/error-handler';
 import { FOTOS_DIR } from './utils/paths';
+import helmet from 'helmet';
 
 const origenesPermitidos = (process.env.CORS_ORIGIN ?? 'http://localhost:4200')
 	.split(',')
@@ -12,6 +13,7 @@ const origenesPermitidos = (process.env.CORS_ORIGIN ?? 'http://localhost:4200')
 export const app: Application = express();
 
 app.disable('x-powered-by');
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 app.use(
 	cors({

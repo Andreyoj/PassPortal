@@ -223,7 +223,7 @@ export async function obtenerFichaCiudadano(id: number): Promise<FichaCiudadano 
 	};
 }
 
-export async function actualizarContactoCiudadano(id: number, datos: DatosContacto): Promise<FichaCiudadano | null> {
+export async function actualizarContactoCiudadano(id: number, datos: DatosContacto, empleadoId: number): Promise<FichaCiudadano | null> {
 	const campos: string[] = [];
 	const valores: Record<string, string | number> = { id };
 
@@ -257,9 +257,9 @@ export async function actualizarContactoCiudadano(id: number, datos: DatosContac
 		}
 		await conexion.query(
 			`INSERT INTO historial_estados
-				(ciudadano_id, entidad, estado_nuevo, detalle)
-			 VALUES (:id, 'CIUDADANO', 'ACTUALIZADO', 'Datos de contacto actualizados')`,
-			{ id },
+				(ciudadano_id, entidad, estado_nuevo, detalle, empleado_id)
+			 VALUES (:id, 'CIUDADANO', 'ACTUALIZADO', 'Datos de contacto actualizados', :empleadoId)`,
+			{ id, empleadoId },
 		);
 		await conexion.commit();
 	} catch (error: unknown) {

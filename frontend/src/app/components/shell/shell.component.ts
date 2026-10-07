@@ -8,6 +8,7 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
 
@@ -29,7 +30,7 @@ interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
       <mat-sidenav-content class="shell__contenido">
         <mat-toolbar class="shell__barra">
           @if (esMovil()) { <button mat-icon-button type="button" aria-label="Abrir menú" (click)="menu.toggle()"><mat-icon>menu</mat-icon></button> }
-          <span class="shell__titulo">Panel de control migratorio</span>
+          <span class="shell__titulo">Panel de control migratorio</span><span class="shell__usuario">{{ auth.empleado()?.nombreCompleto }} · {{ auth.empleado()?.rol }}</span><button mat-button type="button" (click)="auth.logout()">Cerrar sesión</button>
         </mat-toolbar>
         <main class="shell__pagina"><router-outlet /></main>
       </mat-sidenav-content>
@@ -39,6 +40,7 @@ interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
 })
 export class ShellComponent {
   private readonly breakpoint = inject(BreakpointObserver);
+  protected readonly auth = inject(AuthService);
   private readonly menu = viewChild.required<MatSidenav>('menu');
   protected readonly esMovil = toSignal(this.breakpoint.observe('(max-width: 960px)').pipe(map((estado) => estado.matches)), { initialValue: false });
   protected readonly enlaces: readonly EnlaceMenu[] = [

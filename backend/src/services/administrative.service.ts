@@ -79,11 +79,11 @@ export interface NuevoArraigo {
 	fechaFin?: string;
 }
 
-export async function crearMulta(ciudadanoId: number, multa: NuevaMulta): Promise<Multa> {
+export async function crearMulta(ciudadanoId: number, multa: NuevaMulta, empleadoId: number): Promise<Multa> {
 	const [result] = await pool.query<ResultSetHeader>(
-		`INSERT INTO multas (ciudadano_id, concepto, monto, moneda, fecha_registro)
-		 VALUES (:ciudadanoId, :concepto, :monto, :moneda, CURDATE())`,
-		{ ciudadanoId, ...multa },
+		`INSERT INTO multas (ciudadano_id, concepto, monto, moneda, fecha_registro, registrado_por)
+		 VALUES (:ciudadanoId, :concepto, :monto, :moneda, CURDATE(), :empleadoId)`,
+		{ ciudadanoId, empleadoId, ...multa },
 	);
 	const [rows] = await pool.query<FineRow[]>('SELECT * FROM multas WHERE id = :id', { id: result.insertId });
 	return mapFine(rows[0]);
@@ -99,7 +99,7 @@ export async function pagarMulta(id: number): Promise<Multa | null> {
 	return mapFine(rows[0]);
 }
 
-export async function anularMulta(id: number): Promise<Multa | null> {
+export async function anularMulta(id: number, empleadoId: number): Promise<Multa | null> {
 	const conexion = await pool.getConnection();
 	try {
 		await conexion.beginTransaction();
@@ -113,10 +113,10 @@ export async function anularMulta(id: number): Promise<Multa | null> {
 		}
 		await conexion.query(
 			`INSERT INTO historial_estados
-				(ciudadano_id, entidad, entidad_id, estado_nuevo, detalle)
-			 SELECT ciudadano_id, 'MULTA', id, 'ANULADA', 'Multa anulada'
+				(ciudadano_id, entidad, entidad_id, estado_nuevo, detalle, empleado_id)
+			 SELECT ciudadano_id, 'MULTA', id, 'ANULADA', 'Multa anulada', :empleadoId
 			 FROM multas WHERE id = :id`,
-			{ id },
+			{ id, empleadoId },
 		);
 		await conexion.commit();
 	} catch (error: unknown) {
@@ -145,23 +145,24 @@ export async function obtenerRestriccionesCiudadano(ciudadanoId: number): Promis
 	return rows.map(mapRestriction);
 }
 
-export async function crearRestriccion(ciudadanoId: number, restriccion: NuevoArraigo): Promise<Restriccion> {
+export async function crearRestriccion(ciudadanoId: number, restriccion: NuevoArraigo, empleadoId: number): Promise<Restriccion> {
 	const [result] = await pool.query<ResultSetHeader>(
 		`INSERT INTO arraigos
-			(ciudadano_id, tipo, motivo, autoridad, numero_expediente, fecha_inicio, fecha_fin)
-		 VALUES (:ciudadanoId, :tipo, :motivo, :autoridad, :numeroExpediente, :fechaInicio, :fechaFin)`,
+			(ciudadano_id, tipo, motivo, autoridad, numero_expediente, fecha_inicio, fecha_fin, registrado_por)
+		 VALUES (:ciudadanoId, :tipo, :motivo, :autoridad, :numeroExpediente, :fechaInicio, :fechaFin, :empleadoId)`,
 		{
 			ciudadanoId,
 			...restriccion,
 			numeroExpediente: restriccion.numeroExpediente ?? null,
 			fechaFin: restriccion.fechaFin ?? null,
+			empleadoId,
 		},
 	);
 	const [rows] = await pool.query<RestrictionRow[]>('SELECT * FROM arraigos WHERE id = :id', { id: result.insertId });
 	return mapRestriction(rows[0]);
 }
 
-export async function levantarRestriccion(id: number): Promise<Restriccion | null> {
+export async function levantarRestriccion(id: number, empleadoId: number): Promise<Restriccion | null> {
 	const [result] = await pool.query<ResultSetHeader>(
 		'UPDATE arraigos SET activo = 0 WHERE id = :id AND activo = 1',
 		{ id },

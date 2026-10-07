@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { actualizarContactoCiudadano, buscarCiudadanos, obtenerFichaCiudadano, type DatosContacto } from '../services/citizen.service';
 import { HttpError } from '../utils/http-error';
 import { sendOk } from '../utils/http-response';
+import { requireRole } from '../middleware/auth.middleware';
 
 export const citizenRouter = Router();
 
@@ -22,7 +23,7 @@ citizenRouter.get('/:id', async (req, res) => {
 	sendOk(res, ficha);
 });
 
-citizenRouter.put('/:id', async (req, res) => {
+citizenRouter.put('/:id', requireRole('OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'), async (req, res) => {
 	const id = Number(req.params.id);
 	if (!Number.isSafeInteger(id) || id <= 0) {
 		throw new HttpError(400, 'ID_CIUDADANO_INVALIDO', 'El id del ciudadano debe ser un entero positivo.');
@@ -55,7 +56,7 @@ citizenRouter.put('/:id', async (req, res) => {
 		throw new HttpError(400, 'CONTACTO_SIN_CAMBIOS', 'Debes enviar al menos un campo de contacto válido.');
 	}
 
-	const ficha = await actualizarContactoCiudadano(id, datos);
+	const ficha = await actualizarContactoCiudadano(id, datos, req.empleado!.id);
 	if (!ficha) {
 		throw new HttpError(404, 'CIUDADANO_NO_ENCONTRADO', 'El ciudadano solicitado no existe.');
 	}
