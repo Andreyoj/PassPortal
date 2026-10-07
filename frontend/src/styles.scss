@@ -1,76 +1,94 @@
-/* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
 
-html {
-  color-scheme: light;
-  @include mat.theme((
-    color: (primary: mat.$cyan-palette, tertiary: mat.$blue-palette),
-    typography: Roboto,
-    density: 0,
-  ));
-}
-
 :root {
-  --pp-marino: #082f49;
-  --pp-marino-profundo: #061e33;
-  --pp-turquesa: #23c6c8;
-  --pp-rojo: #b3261e;
-  --pp-rojo-fondo: #fde8e6;
-  --pp-amarillo: #8a5a00;
-  --pp-amarillo-fondo: #fff1cc;
-  --pp-verde: #1b6e3c;
-  --pp-verde-fondo: #dff5e6;
+  --bg-main: #F3EFEA;
+  --bg-card: #FAF8F5;
+  --bg-input: #FFFFFF;
+  --bg-input-focus: #FFFFFF;
+  
+  --primary: #72393F;
+  --primary-hover: #5A2C31;
+  
+  --text-primary: #332E2B;
+  --text-secondary: #7A6F68;
+  --text-muted: #A0938A;
+  
+  --border-color: rgba(169, 146, 125, 0.25);
+  --border-radius-lg: 20px;
+  --border-radius-md: 12px;
+  --border-radius-sm: 8px;
+  
+  --shadow-luxe: 
+    0 0 35px 8px rgba(114, 57, 63, 0.05),
+    0 15px 35px rgba(51, 46, 43, 0.04);
+
+  --pp-marino: #F3EFEA;
+  --pp-marino-profundo: #EBE7E0;
+  --pp-turquesa: #72393F;
+  --pp-rojo: #B71C1C;
+  --pp-verde: #2E7D32;
 }
 
-html, body { height: 100%; }
-body {
+html, body { 
+  height: 100%; 
   margin: 0;
-  background: var(--mat-sys-surface-container-lowest, #fff);
-  color: var(--mat-sys-on-surface);
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Plus Jakarta Sans', Roboto, 'Helvetica Neue', sans-serif;
+  color-scheme: light;
 }
 
-button, a, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { 
+  font: inherit; 
+}
+
 button, .mat-mdc-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button,
 .mat-mdc-text-field-wrapper, .citizen, .row, .banner, .message, .metric, .chart, .priority {
-  border-radius: 8px !important;
-}
-.insights { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr); gap: 16px; margin: 8px 0 24px; }
-.dashboard__cards { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important; gap: 16px !important; }
-.metric { padding: 20px !important; }
-.metric span { font-size: 13px !important; }
-.metric strong { font-size: 34px !important; }
-.metric small { font-size: 12px !important; }
-.donut-wrap { position: relative; width: 170px; margin: 8px auto 16px; text-align: center; }
-.donut { display: block; transform: rotate(-90deg); }
-.donut__track, .donut__segment { fill: none; stroke-width: 4; }
-.donut__track { stroke: var(--mat-sys-surface-container-high); }
-.donut__segment--rojo { stroke: var(--pp-rojo); }
-.donut__segment--amarillo { stroke: var(--pp-amarillo); }
-.donut__segment--verde { stroke: var(--pp-verde); }
-.donut-wrap strong, .donut-wrap span { position: absolute; left: 0; right: 0; display: block; }
-.donut-wrap strong { top: 58px; font-size: 28px; }
-.donut-wrap span { top: 91px; font-size: 11px; color: var(--mat-sys-on-surface-variant); }
-.legend { display: grid; gap: 8px; font-size: 12px; }
-.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
-.legend .rojo { background: var(--pp-rojo); }.legend .amarillo { background: var(--pp-amarillo); }.legend .verde { background: var(--pp-verde); }
-.priority { padding: 20px; }.priority h2 { margin-top: 0; }.priority a { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; color: inherit; text-decoration: none; padding: 10px 0; border-bottom: 1px solid var(--mat-sys-outline-variant); }.priority a:last-child { border-bottom: 0; }.priority strong, .priority small { display: block; }.priority small { color: var(--mat-sys-on-surface-variant); margin-top: 3px; }
-.table-wrap th { font-weight: 600; background: var(--mat-sys-surface-container-low); }.table-wrap tr { height: 60px; }.row-chevron { margin-left: auto; color: var(--mat-sys-on-surface-variant); }
-.shell__marca img { width: 32px; height: 32px; }.shell__marca strong { font-size: 16px; }.logout { background: var(--mat-sys-secondary-container) !important; }
-.shell__pagina > router-outlet + * { display: block; animation: page-enter .18s ease-out; }
-.empty-state { justify-content: center; flex-direction: column; text-align: center; min-height: 150px; }.empty-state svg { width: 100px; color: var(--mat-sys-primary); }
-:focus-visible { outline: 3px solid var(--pp-turquesa); outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  border-radius: var(--border-radius-md) !important;
 }
 
-.pp-snack-exito {
-  --mat-snack-bar-container-color: var(--pp-verde);
-  --mat-snack-bar-supporting-text-color: #fff;
+.card, .dashboard__cards > *, .metric, .priority, .table-wrap {
+  background-color: var(--bg-card) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-luxe) !important;
+  outline: 1px solid var(--border-color) !important;
+  outline-offset: -1px;
+  color: var(--text-primary) !important;
 }
-.pp-snack-error {
-  --mat-snack-bar-container-color: var(--pp-rojo);
-  --mat-snack-bar-supporting-text-color: #fff;
+
+.mdc-text-field--outlined {
+  --mdc-outlined-text-field-outline-color: #D3C9BF !important;
+  --mdc-outlined-text-field-focus-outline-color: var(--primary) !important;
+  --mdc-outlined-text-field-label-text-color: var(--text-secondary) !important;
+  --mdc-outlined-text-field-focus-label-text-color: var(--primary) !important;
+  --mdc-outlined-text-field-input-text-color: var(--text-primary) !important;
+  background-color: var(--bg-input) !important;
+  border-radius: var(--border-radius-sm) !important;
 }
-@media (max-width: 700px) { .insights { grid-template-columns: 1fr; } }
-@keyframes page-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.mat-mdc-unelevated-button.mat-primary, 
+.mat-mdc-raised-button.mat-primary {
+  background-color: var(--primary) !important;
+  color: #F2F4F3 !important;
+  box-shadow: 0 4px 14px rgba(114, 57, 63, 0.25) !important;
+
+  &:hover {
+    background-color: var(--primary-hover) !important;
+    box-shadow: 0 6px 18px rgba(114, 57, 63, 0.35) !important;
+  }
+}
+
+:focus-visible { 
+  outline: 2px solid var(--primary); 
+  outline-offset: 2px; 
+}
+
+@keyframes page-enter { 
+  from { opacity: 0; transform: translateY(4px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+.shell__pagina > router-outlet + * { 
+  display: block; 
+  animation: page-enter .18s ease-out; 
+}

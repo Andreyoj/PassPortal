@@ -37,6 +37,12 @@ function texto(body: Record<string, unknown>, campo: string, maximo: number): st
 	if (typeof valor !== 'string' || valor.trim() === '' || valor.length > maximo) {
 		throw new HttpError(400, `${campo.toUpperCase()}_INVALIDO`, `${campo} es obligatorio y no puede superar ${maximo} caracteres.`);
 	}
+
+	function fechaValida(valor: string, campo: string): void {
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(valor) || Number.isNaN(new Date(`${valor}T00:00:00Z`).getTime())) {
+			throw new HttpError(400, 'FECHA_INVALIDA', `${campo} debe ser una fecha válida con formato AAAA-MM-DD.`);
+		}
+	}
 	return valor.trim();
 }
 
@@ -98,9 +104,8 @@ administrativeRouter.post('/ciudadanos/:id/arraigos', requireRole('PERSONAL', 'A
 	}
 	const fechaInicio = texto(body, 'fechaInicio', 10);
 	const fechaFin = body.fechaFin === undefined ? undefined : texto(body, 'fechaFin', 10);
-	if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaInicio) || (fechaFin !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(fechaFin))) {
-		throw new HttpError(400, 'FECHA_INVALIDA', 'Las fechas deben usar el formato AAAA-MM-DD.');
-	}
+	fechaValida(fechaInicio, 'fechaInicio');
+	if (fechaFin !== undefined) fechaValida(fechaFin, 'fechaFin');
 	if (fechaFin !== undefined && fechaFin < fechaInicio) {
 		throw new HttpError(400, 'RANGO_FECHAS_INVALIDO', 'La fecha final no puede ser anterior a la inicial.');
 	}

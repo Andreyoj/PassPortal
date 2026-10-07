@@ -8,6 +8,7 @@ export const citizenRouter = Router();
 
 citizenRouter.get('/', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const query = typeof req.query.q === 'string' ? req.query.q : undefined;
+	if (query !== undefined && query.length > 80) throw new HttpError(400, 'BUSQUEDA_DEMASIADO_LARGA', 'La búsqueda no puede superar 80 caracteres.');
 	sendOk(res, await buscarCiudadanos(query));
 });
 
