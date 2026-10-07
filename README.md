@@ -51,6 +51,17 @@ guatemaltecos. No agrega fotografías: la interfaz utiliza avatares con
 iniciales. Los datos demo pueden recargarse porque el script reemplaza su
 rango de registros (`id` 7 a 46).
 
+## Recorrido de presentación
+
+1. Inicia sesión con un empleado creado por `create-admin` o `create-employee`.
+2. En el dashboard muestra el saludo, las métricas de vencimiento, el gráfico y filtra las alertas críticas.
+3. Abre la ficha de Luis Alberto Gómez Rivas (`/ciudadanos/4`) para mostrar la restricción activa, documentos y movimientos.
+4. Busca `Ortiz` en Ciudadanos y abre la ficha de María Fernanda Ortiz Castillo.
+5. En la ficha de Pedro José Castañeda Ruiz (`/ciudadanos/6`) muestra la multa pendiente y las acciones según el rol.
+6. Usa “Imprimir ficha” para mostrar la vista preparada para papel.
+
+El entorno de demostración utiliza datos ficticios y no incluye fotografías; las iniciales sirven como avatar hasta que se cargue una imagen de prueba.
+
 ## Base de datos
 La aplicación usa MySQL con la base `pass_portal_IN5BM`. Configura las credenciales locales en `backend/.env` y ejecuta, en este orden, `backend/src/db/schema.sql` y `backend/src/db/seed.sql`.
 

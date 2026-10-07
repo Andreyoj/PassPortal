@@ -41,7 +41,7 @@ export class CiudadanosComponent {
   protected readonly pageSize = signal(10);
 
   constructor() {
-    this.cambios.pipe(debounceTime(250), distinctUntilChanged(), switchMap((q) => this.api.buscarCiudadanos(q))).subscribe({
+    this.cambios.pipe(debounceTime(300), distinctUntilChanged(), switchMap((q) => this.api.buscarCiudadanos(q))).subscribe({
       next: (data) => { this.ciudadanos.set(data); this.pageIndex.set(0); this.cargando.set(false); },
       error: () => { this.error.set('No se pudo cargar la búsqueda.'); this.cargando.set(false); },
     });
