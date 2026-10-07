@@ -30,13 +30,13 @@ interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
       <mat-sidenav-content class="shell__contenido">
         <mat-toolbar class="shell__barra">
           @if (esMovil()) { <button mat-icon-button type="button" aria-label="Abrir menú" (click)="menu.toggle()"><mat-icon>menu</mat-icon></button> }
-          <span class="shell__titulo">Panel de control migratorio</span><span class="shell__usuario">{{ auth.empleado()?.nombreCompleto }} · {{ auth.empleado()?.rol }}</span><button mat-button type="button" (click)="auth.logout()">Cerrar sesión</button>
+          <span class="shell__titulo">Panel de control migratorio</span><span class="shell__spacer"></span><span class="shell__avatar" aria-hidden="true">{{ iniciales() }}</span><span class="shell__usuario"><strong>{{ auth.empleado()?.nombreCompleto }}</strong><small>{{ auth.empleado()?.rol }}</small></span><button mat-button type="button" (click)="auth.logout()">Cerrar sesión</button>
         </mat-toolbar>
-        <main class="shell__pagina"><router-outlet /></main>
+        <main class="shell__pagina"><router-outlet /><footer>Entorno de demostración con datos ficticios</footer></main>
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: [`.shell{min-height:100dvh}.shell__menu{width:260px;border-right:1px solid var(--mat-sys-outline-variant)}.shell__marca{display:flex;align-items:center;gap:12px;padding:20px 16px 12px;color:var(--mat-sys-primary)}.shell__marca mat-icon{font-size:32px;width:32px;height:32px}.shell__marca div{display:flex;flex-direction:column;line-height:1.2}.shell__marca span{font-size:12px;color:var(--mat-sys-on-surface-variant)}.shell__enlace--activo{background:var(--mat-sys-secondary-container)}.shell__barra{position:sticky;top:0;z-index:2;background:var(--mat-sys-surface);border-bottom:1px solid var(--mat-sys-outline-variant)}.shell__titulo{font-weight:500}.shell__pagina{padding:24px;max-width:1400px;margin:0 auto}@media(max-width:600px){.shell__pagina{padding:16px}}`],
+  styles: [`.shell{min-height:100dvh}.shell__menu{width:260px;border-right:1px solid var(--mat-sys-outline-variant)}.shell__marca{display:flex;align-items:center;gap:12px;padding:20px 16px 12px;color:var(--mat-sys-primary)}.shell__marca mat-icon{font-size:32px;width:32px;height:32px}.shell__marca div{display:flex;flex-direction:column;line-height:1.2}.shell__marca span{font-size:12px;color:var(--mat-sys-on-surface-variant)}.shell__enlace--activo{background:var(--mat-sys-secondary-container)}.shell__barra{position:sticky;top:0;z-index:2;background:var(--mat-sys-surface);border-bottom:1px solid var(--mat-sys-outline-variant)}.shell__titulo{font-weight:500}.shell__spacer{flex:1}.shell__usuario{display:flex;flex-direction:column;line-height:1.2;margin:0 10px;font-size:13px}.shell__usuario small{color:var(--mat-sys-on-surface-variant);font-size:11px}.shell__avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--pp-marino);color:#fff;font-size:12px;font-weight:700}.shell__pagina{padding:24px;max-width:1400px;margin:0 auto}.shell__pagina footer{text-align:center;color:var(--mat-sys-on-surface-variant);font-size:11px;margin-top:32px}@media(max-width:600px){.shell__pagina{padding:16px}.shell__usuario{display:none}}`],
 })
 export class ShellComponent {
   private readonly breakpoint = inject(BreakpointObserver);
@@ -48,4 +48,7 @@ export class ShellComponent {
     { ruta: '/ciudadanos', etiqueta: 'Ciudadanos', icono: 'badge' },
   ];
   protected cerrarEnMovil(): void { if (this.esMovil()) void this.menu().close(); }
+  protected iniciales(): string {
+    return (this.auth.empleado()?.nombreCompleto ?? '').split(/\s+/).filter(Boolean).slice(0, 2).map((parte) => parte[0]).join('').toUpperCase();
+  }
 }

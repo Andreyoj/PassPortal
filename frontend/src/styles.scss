@@ -4,13 +4,16 @@
 html {
   color-scheme: light;
   @include mat.theme((
-    color: (primary: mat.$azure-palette, tertiary: mat.$blue-palette),
+    color: (primary: mat.$cyan-palette, tertiary: mat.$blue-palette),
     typography: Roboto,
     density: 0,
   ));
 }
 
 :root {
+  --pp-marino: #082f49;
+  --pp-marino-profundo: #061e33;
+  --pp-turquesa: #23c6c8;
   --pp-rojo: #b3261e;
   --pp-rojo-fondo: #fde8e6;
   --pp-amarillo: #8a5a00;
@@ -26,6 +29,9 @@ body {
   color: var(--mat-sys-on-surface);
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+button, a, input, select, textarea { font: inherit; }
+:focus-visible { outline: 3px solid var(--pp-turquesa); outline-offset: 3px; }
 
 .pp-snack-exito {
   --mat-snack-bar-container-color: var(--pp-verde);
