@@ -13,10 +13,9 @@ Sistema de Gestión Migratoria (SGM): plataforma interna para operadores y emple
 
 ```powershell
 pnpm install
-Copy-Item backend\.env.example backend\.env
 ```
 
-Ejecuta `backend/src/db/schema.sql` y luego `backend/src/db/seed.sql` en MySQL Workbench. Completa `backend/.env` con tus credenciales. `JWT_SECRET` es obligatorio y debe tener al menos 32 caracteres; genera uno localmente con `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` y guárdalo únicamente en `.env`, junto con `JWT_EXPIRES_IN=8h`.
+Ejecuta `backend/src/db/schema.sql` y luego `backend/src/db/seed.sql` en MySQL Workbench. Configura tus credenciales y variables locales directamente en `backend/.env`. `JWT_SECRET` es obligatorio y debe tener al menos 32 caracteres; genera uno localmente con `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` y guárdalo únicamente en `.env`, junto con `JWT_EXPIRES_IN=8h`.
 
 ## Ejecución
 ```bash
