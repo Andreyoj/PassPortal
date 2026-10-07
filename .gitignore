@@ -1,5 +1,31 @@
-.env
+# Dependencias
 node_modules/
+
+# Variables y secretos locales
+.env
+.env.*
+!.env.example
+
+# Builds y cachés
 dist/
+build/
+.angular/
+coverage/
+*.tsbuildinfo
+
+# Logs y archivos temporales
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+*.tmp
+*.temp
+
+# Archivos del sistema y editores
+.DS_Store
+Thumbs.db
+.idea/
+
+# Archivos cargados por la aplicación
 backend/uploads/fotos/*
 !backend/uploads/fotos/.gitkeep
