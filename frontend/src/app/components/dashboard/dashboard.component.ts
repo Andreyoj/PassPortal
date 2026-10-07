@@ -39,6 +39,7 @@ import type { DocumentoAlerta, ResumenAlertas } from '../../models/alert.model';
       <div class="filters">
         <mat-form-field appearance="outline"><mat-label>Estado</mat-label><mat-select [value]="estadoFiltro()" (selectionChange)="filtrarEstado($event.value)"><mat-option value="CRITICAS">Críticas</mat-option><mat-option value="ROJO">Vencidos</mat-option><mat-option value="AMARILLO">Por vencer</mat-option><mat-option value="TODOS">Todos</mat-option></mat-select></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Tipo de documento</mat-label><mat-select [value]="tipoFiltro()" (selectionChange)="tipoFiltro.set($event.value); aplicarFiltros()"><mat-option value="">Todos</mat-option>@for (tipo of tiposDocumentos(); track tipo) { <mat-option [value]="tipo">{{ tipo }}</mat-option> }</mat-select></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Rango</mat-label><mat-select [value]="rangoFiltro()" (selectionChange)="rangoFiltro.set($event.value); aplicarFiltros()"><mat-option value="">Todos</mat-option><mat-option value="30">Hasta 30 días</mat-option><mat-option value="60">31 a 60 días</mat-option><mat-option value="90">61 a 90 días</mat-option></mat-select></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Buscar nombre o DPI</mat-label><input matInput (input)="cambiarTexto($event)" /></mat-form-field>
       </div>
       @if (!cargando() && !error() && dataSource.filteredData.length === 0) { <mat-card class="empty">No hay alertas para los filtros seleccionados.</mat-card> }
@@ -62,6 +63,7 @@ export class DashboardComponent implements AfterViewInit {
   protected readonly error = signal('');
   protected readonly estadoFiltro = signal('CRITICAS');
   protected readonly tipoFiltro = signal('');
+  protected readonly rangoFiltro = signal('');
   protected readonly textoFiltro = signal('');
   protected readonly tiposDocumentos = signal<string[]>([]);
   protected readonly dataSource = new MatTableDataSource<DocumentoAlerta>([]);
@@ -69,9 +71,10 @@ export class DashboardComponent implements AfterViewInit {
 
   constructor() {
     this.dataSource.filterPredicate = (a, filter) => {
-      const [estado, tipo, texto] = filter.split('|');
+      const [estado, tipo, rango, texto] = filter.split('|');
       const coincideEstado = estado === 'TODOS' || (estado === 'CRITICAS' && ['ROJO', 'AMARILLO'].includes(a.estadoAlerta)) || a.estadoAlerta === estado;
-      return coincideEstado && (!tipo || a.tipoDocumento === tipo) && (!texto || `${a.nombreCiudadano} ${a.dpi}`.toLowerCase().includes(texto));
+      const coincideRango = !rango || (rango === '30' && a.diasParaVencer >= 1 && a.diasParaVencer <= 30) || (rango === '60' && a.diasParaVencer >= 31 && a.diasParaVencer <= 60) || (rango === '90' && a.diasParaVencer >= 61 && a.diasParaVencer <= 90);
+      return coincideEstado && (!tipo || a.tipoDocumento === tipo) && coincideRango && (!texto || `${a.nombreCiudadano} ${a.dpi}`.toLowerCase().includes(texto));
     };
     this.cargar();
   }
@@ -83,7 +86,7 @@ export class DashboardComponent implements AfterViewInit {
     this.api.obtenerAlertas().subscribe({ next: (a) => { this.dataSource.data = a; this.tiposDocumentos.set([...new Set(a.map((x) => x.tipoDocumento))]); this.aplicarFiltros(); this.cargando.set(false); }, error: () => { this.error.set('No se pudieron cargar las alertas.'); this.cargando.set(false); } });
   }
   protected filtrarEstado(estado: string): void { this.estadoFiltro.set(estado); this.aplicarFiltros(); }
-  protected aplicarFiltros(): void { this.dataSource.filter = `${this.estadoFiltro()}|${this.tipoFiltro()}|${this.textoFiltro().trim().toLowerCase()}`; }
+  protected aplicarFiltros(): void { this.dataSource.filter = `${this.estadoFiltro()}|${this.tipoFiltro()}|${this.rangoFiltro()}|${this.textoFiltro().trim().toLowerCase()}`; }
   protected cambiarTexto(event: Event): void { this.textoFiltro.set((event.target as HTMLInputElement).value); this.aplicarFiltros(); }
   protected barras(r: ResumenAlertas): { etiqueta: string; valor: number; clase: string }[] { return [{ etiqueta: 'Vencidos', valor: r.vencidos, clase: 'bar__fill--rojo' }, { etiqueta: '30 días', valor: r.porVencer30, clase: 'bar__fill--amarillo' }, { etiqueta: '60 días', valor: r.porVencer60, clase: 'bar__fill--amarillo' }, { etiqueta: '90 días', valor: r.porVencer90, clase: 'bar__fill--amarillo' }, { etiqueta: 'Vigentes', valor: r.vigentes, clase: 'bar__fill--verde' }]; }
   protected altura(valor: number, total: number): number { return total > 0 ? Math.max(3, (valor / total) * 100) : 3; }
