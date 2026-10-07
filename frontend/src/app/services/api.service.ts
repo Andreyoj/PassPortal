@@ -4,7 +4,7 @@ import { map, type Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import type { ApiSuccessResponse } from '../models/api.model';
 import type { DocumentoAlerta, ResumenAlertas } from '../models/alert.model';
-import type { Ciudadano, FichaCiudadano, Multa, Restriccion, TipoRestriccion } from '../models/domain.model';
+import type { Ciudadano, EstadoSolicitudMovimiento, FichaCiudadano, Multa, Restriccion, SolicitudMovimiento, TipoRestriccion } from '../models/domain.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -70,5 +70,33 @@ export class ApiService {
   levantarArraigo(id: number): Observable<Restriccion> {
     return this.http.patch<ApiSuccessResponse<Restriccion>>(`${this.baseUrl}/arraigos/${id}/levantar`, {})
       .pipe(map((response) => response.data));
+  }
+
+  crearSolicitudMovimiento(solicitud: {
+    paisOrigen: string;
+    paisDestino: string;
+    fechaSolicitada: string;
+    motivo: string;
+  }): Observable<SolicitudMovimiento> {
+    return this.http.post<ApiSuccessResponse<SolicitudMovimiento>>(`${this.baseUrl}/solicitudes-movimiento`, solicitud)
+      .pipe(map((response) => response.data));
+  }
+
+  obtenerMisSolicitudesMovimiento(): Observable<SolicitudMovimiento[]> {
+    return this.http.get<ApiSuccessResponse<SolicitudMovimiento[]>>(`${this.baseUrl}/solicitudes-movimiento/mias`)
+      .pipe(map((response) => response.data));
+  }
+
+  obtenerSolicitudesMovimiento(estado?: EstadoSolicitudMovimiento): Observable<SolicitudMovimiento[]> {
+    const suffix = estado ? `?estado=${estado}` : '';
+    return this.http.get<ApiSuccessResponse<SolicitudMovimiento[]>>(`${this.baseUrl}/solicitudes-movimiento${suffix}`)
+      .pipe(map((response) => response.data));
+  }
+
+  resolverSolicitudMovimiento(id: number, estado: 'APROBADA' | 'RECHAZADA', comentario?: string): Observable<SolicitudMovimiento> {
+    return this.http.patch<ApiSuccessResponse<SolicitudMovimiento>>(`${this.baseUrl}/solicitudes-movimiento/${id}/resolver`, {
+      estado,
+      ...(comentario ? { comentario } : {}),
+    }).pipe(map((response) => response.data));
   }
 }

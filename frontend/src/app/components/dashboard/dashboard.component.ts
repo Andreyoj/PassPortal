@@ -67,21 +67,21 @@ import { colorAvatar, etiquetaEstado, iniciales, textoDias } from '../../utils/p
           <small>Requieren atención</small>
         </mat-card>
 
-        <mat-card class="metric metric--amarillo">
+        <mat-card class="metric metric--amarillo metric--warning-30">
           <mat-icon>warning</mat-icon>
           <span>Por vencer 30 días</span>
           <strong>{{ datos.porVencer30 }}</strong>
           <small>Próxima gestión</small>
         </mat-card>
 
-        <mat-card class="metric metric--amarillo">
+        <mat-card class="metric metric--amarillo metric--warning-60">
           <mat-icon>warning</mat-icon>
           <span>Por vencer 60 días</span>
           <strong>{{ datos.porVencer60 }}</strong>
           <small>Planifica renovación</small>
         </mat-card>
 
-        <mat-card class="metric metric--amarillo">
+        <mat-card class="metric metric--amarillo metric--warning-90">
           <mat-icon>warning</mat-icon>
           <span>Por vencer 90 días</span>
           <strong>{{ datos.porVencer90 }}</strong>
@@ -327,12 +327,27 @@ import { colorAvatar, etiquetaEstado, iniciales, textoDias } from '../../utils/p
       display: grid;
       grid-template-columns: auto 1fr;
       gap: 2px 12px;
+      min-height: 104px;
+      border: 1px solid rgba(51, 46, 43, 0.08);
+      border-top: 3px solid var(--mat-sys-outline-variant);
+      box-shadow: 0 6px 18px rgba(51, 46, 43, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(51, 46, 43, 0.11);
+      }
 
       mat-icon {
         grid-row: span 3;
+        align-self: start;
+        display: grid;
+        place-items: center;
         font-size: 28px;
         width: 28px;
         height: 28px;
+        padding: 8px;
+        border-radius: 12px;
         color: var(--text-secondary);
       }
 
@@ -356,18 +371,32 @@ import { colorAvatar, etiquetaEstado, iniciales, textoDias } from '../../utils/p
     }
 
     .metric--rojo {
-      border-left: 4px solid var(--pp-rojo);
-      mat-icon { color: var(--pp-rojo); }
+      border-top-color: var(--pp-rojo);
+      background: linear-gradient(135deg, rgba(183, 28, 28, 0.11), var(--mat-sys-surface) 62%);
+      mat-icon { color: var(--pp-rojo); background: rgba(183, 28, 28, 0.12); }
     }
 
     .metric--amarillo {
-      border-left: 4px solid var(--pp-amarillo);
-      mat-icon { color: var(--pp-amarillo); }
+      border-top-color: var(--pp-amarillo);
+      mat-icon { color: #9a6500; background: rgba(214, 158, 46, 0.16); }
+    }
+
+    .metric--warning-30 {
+      background: linear-gradient(135deg, rgba(214, 158, 46, 0.16), var(--mat-sys-surface) 68%);
+    }
+
+    .metric--warning-60 {
+      background: linear-gradient(135deg, rgba(214, 158, 46, 0.1), var(--mat-sys-surface) 68%);
+    }
+
+    .metric--warning-90 {
+      background: linear-gradient(135deg, rgba(214, 158, 46, 0.06), var(--mat-sys-surface) 68%);
     }
 
     .metric--verde {
-      border-left: 4px solid var(--pp-verde);
-      mat-icon { color: var(--pp-verde); }
+      border-top-color: var(--pp-verde);
+      background: linear-gradient(135deg, rgba(46, 125, 50, 0.11), var(--mat-sys-surface) 62%);
+      mat-icon { color: var(--pp-verde); background: rgba(46, 125, 50, 0.12); }
     }
 
     .insights {
@@ -379,6 +408,8 @@ import { colorAvatar, etiquetaEstado, iniciales, textoDias } from '../../utils/p
 
     .chart, .priority {
       padding: 24px;
+      border: 1px solid rgba(51, 46, 43, 0.08);
+      box-shadow: 0 8px 24px rgba(51, 46, 43, 0.06);
 
       h2 {
         margin: 0 0 20px 0;
@@ -518,6 +549,8 @@ import { colorAvatar, etiquetaEstado, iniciales, textoDias } from '../../utils/p
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
 
       h2 {
         margin: 0;
@@ -527,8 +560,15 @@ import { colorAvatar, etiquetaEstado, iniciales, textoDias } from '../../utils/p
     }
 
     .counter-badge {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--mat-sys-secondary-container);
+      color: var(--mat-sys-on-secondary-container);
+      font-size: 0.78rem;
+      font-weight: 700;
     }
 
     .filters {

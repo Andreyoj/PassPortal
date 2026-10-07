@@ -48,7 +48,7 @@ button, .mat-mdc-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button,
 }
 
 .card, .dashboard__cards > *, .metric, .priority, .table-wrap {
-  background-color: var(--bg-card) !important;
+  background-color: var(--bg-card);
   border-radius: var(--border-radius-lg) !important;
   box-shadow: var(--shadow-luxe) !important;
   outline: 1px solid var(--border-color) !important;

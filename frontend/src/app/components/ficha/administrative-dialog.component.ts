@@ -29,17 +29,28 @@ export type AdministrativeDialogData = { mode: 'multa' | 'arraigo' };
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Concepto</mat-label>
             <input matInput formControlName="concepto" placeholder="Ej. Extemporaneidad en trámite" />
+            @if (form.controls.concepto.hasError('required') && form.controls.concepto.touched) {
+              <mat-error>El concepto es obligatorio.</mat-error>
+            }
           </mat-form-field>
 
           <div class="inline-fields">
             <mat-form-field appearance="outline" class="flex-2">
               <mat-label>Monto</mat-label>
               <input matInput type="number" min="0.01" step="0.01" formControlName="monto" placeholder="0.00" />
+              @if (form.controls.monto.hasError('required') && form.controls.monto.touched) {
+                <mat-error>El monto es obligatorio.</mat-error>
+              } @else if (form.controls.monto.hasError('min') && form.controls.monto.touched) {
+                <mat-error>El monto debe ser mayor que 0.</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="flex-1">
               <mat-label>Moneda</mat-label>
               <input matInput maxlength="3" formControlName="moneda" placeholder="GTQ" />
+              @if (form.controls.moneda.hasError('required') && form.controls.moneda.touched) {
+                <mat-error>La moneda es obligatoria.</mat-error>
+              }
             </mat-form-field>
           </div>
         } @else {
@@ -50,16 +61,25 @@ export type AdministrativeDialogData = { mode: 'multa' | 'arraigo' };
               <mat-option value="BLOQUEO_LEGAL">Bloqueo legal</mat-option>
               <mat-option value="RESTRICCION_SALIDA">Restricción de salida</mat-option>
             </mat-select>
+            @if (form.controls.tipo.hasError('required') && form.controls.tipo.touched) {
+              <mat-error>Selecciona un tipo.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Motivo</mat-label>
             <textarea matInput rows="3" formControlName="motivo" placeholder="Descripción de la causa o resolución"></textarea>
+            @if (form.controls.motivo.hasError('required') && form.controls.motivo.touched) {
+              <mat-error>El motivo es obligatorio.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Autoridad</mat-label>
             <input matInput formControlName="autoridad" placeholder="Juzgado o entidad emisor" />
+            @if (form.controls.autoridad.hasError('required') && form.controls.autoridad.touched) {
+              <mat-error>La autoridad es obligatoria.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -71,6 +91,9 @@ export type AdministrativeDialogData = { mode: 'multa' | 'arraigo' };
             <mat-form-field appearance="outline" class="flex-1">
               <mat-label>Fecha de inicio</mat-label>
               <input matInput type="date" formControlName="fechaInicio" />
+              @if (form.controls.fechaInicio.hasError('required') && form.controls.fechaInicio.touched) {
+                <mat-error>La fecha de inicio es obligatoria.</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="flex-1">
@@ -178,6 +201,7 @@ export class AdministrativeDialogComponent {
   }
 
   protected guardar(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) return;
     const value = this.form.getRawValue();
 

@@ -28,6 +28,12 @@ export const routes: Routes = [
         loadComponent: () => import('./components/ciudadanos/ciudadanos.component').then((m) => m.CiudadanosComponent),
       },
       {
+        path: 'solicitudes',
+        canActivate: [roleGuard('PERSONAL', 'ADMINISTRADOR')],
+        title: 'Solicitudes de movimiento · Pass Portal',
+        loadComponent: () => import('./components/movement-requests/movement-requests.component').then((m) => m.MovementRequestsComponent),
+      },
+      {
         path: 'ciudadanos/:id',
         canActivate: [roleGuard('PERSONAL', 'ADMINISTRADOR')],
         title: 'Ficha del ciudadano · Pass Portal',

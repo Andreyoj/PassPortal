@@ -235,6 +235,23 @@ interface EnlaceMenu {
       gap: 6px;
       height: 38px;
       padding: 0 16px;
+      border: 1px solid rgba(183, 28, 28, 0.22);
+      border-radius: 999px;
+      background: var(--pp-rojo) !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(183, 28, 28, 0.2);
+      transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+
+      &:hover {
+        background: #8f1717 !important;
+        box-shadow: 0 7px 16px rgba(183, 28, 28, 0.28);
+        transform: translateY(-1px);
+      }
+
+      mat-icon {
+        color: #ffffff !important;
+      }
     }
 
     .shell__pagina {
@@ -291,6 +308,7 @@ export class ShellComponent {
   protected readonly enlaces: readonly EnlaceMenu[] = [
     { ruta: '/dashboard', etiqueta: 'Panel de alertas', icono: 'notifications_active', roles: ['PERSONAL', 'ADMINISTRADOR'] },
     { ruta: '/ciudadanos', etiqueta: 'Ciudadanos', icono: 'badge', roles: ['PERSONAL', 'ADMINISTRADOR'] },
+    { ruta: '/solicitudes', etiqueta: 'Solicitudes de movimiento', icono: 'flight_takeoff', roles: ['PERSONAL', 'ADMINISTRADOR'] },
     { ruta: '/perfil', etiqueta: 'Mi perfil', icono: 'account_circle' },
     { ruta: '/mi-informacion', etiqueta: 'Mi información migratoria', icono: 'folder_shared', roles: ['USUARIO'] },
     { ruta: '/admin/usuarios', etiqueta: 'Usuarios', icono: 'manage_accounts', roles: ['ADMINISTRADOR'] },

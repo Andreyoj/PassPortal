@@ -58,13 +58,17 @@ import { colorAvatar, etiquetaEstado, textoDias } from '../../utils/presentation
           @if (auth.tieneRol('USUARIO', 'PERSONAL', 'ADMINISTRADOR')) {
             <label class="upload">
               <mat-icon>photo_camera</mat-icon>
-              <span>Cambiar foto</span>
+              <span>{{ subiendoFoto() ? 'Subiendo foto...' : 'Cambiar foto' }}</span>
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 (change)="seleccionarFoto($event)"
+                [disabled]="subiendoFoto()"
               />
             </label>
+            @if (subiendoFoto()) {
+              <span class="photo-status" aria-live="polite">Guardando fotografía...</span>
+            }
           }
         </div>
 
@@ -278,6 +282,7 @@ import { colorAvatar, etiquetaEstado, textoDias } from '../../utils/presentation
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 2px;
 
       img {
         display: block;
@@ -285,8 +290,9 @@ import { colorAvatar, etiquetaEstado, textoDias } from '../../utils/presentation
         height: 120px;
         border-radius: 50%;
         object-fit: cover;
-        background: var(--mat-sys-surface-container-high);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(145deg, var(--mat-sys-surface-container-high), var(--mat-sys-surface-container));
+        border: 4px solid var(--mat-sys-surface);
+        box-shadow: 0 0 0 1px rgba(114, 57, 63, 0.18), 0 8px 20px rgba(51, 46, 43, 0.16);
       }
     }
 
@@ -295,14 +301,25 @@ import { colorAvatar, etiquetaEstado, textoDias } from '../../utils/presentation
       align-items: center;
       gap: 4px;
       margin-top: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(114, 57, 63, 0.22);
+      border-radius: 999px;
+      background: var(--mat-sys-surface);
       color: var(--primary);
       font-size: 0.8rem;
       font-weight: 500;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
 
       &:hover {
-        opacity: 0.8;
+        background: rgba(114, 57, 63, 0.07);
+        border-color: rgba(114, 57, 63, 0.42);
+        transform: translateY(-1px);
+      }
+
+      &:has(input:disabled) {
+        cursor: wait;
+        opacity: 0.65;
       }
 
       mat-icon {
@@ -314,6 +331,12 @@ import { colorAvatar, etiquetaEstado, textoDias } from '../../utils/presentation
       input {
         display: none;
       }
+    }
+
+    .photo-status {
+      margin-top: 4px;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
     }
 
     .profile__info {
@@ -635,6 +658,7 @@ export class FichaComponent {
   protected readonly cargando = signal(true);
   protected readonly error = signal('');
   protected readonly fotoPreview = signal('');
+  protected readonly subiendoFoto = signal(false);
   protected readonly fechaImpresion = new Date();
 
   protected imprimir(): void {
@@ -686,6 +710,8 @@ export class FichaComponent {
       this.error.set('Selecciona una imagen JPG, PNG o WebP de máximo 5 MB.');
       return;
     }
+    this.error.set('');
+    this.subiendoFoto.set(true);
     const reader = new FileReader();
     reader.onload = () => this.fotoPreview.set(String(reader.result));
     reader.readAsDataURL(file);
@@ -695,8 +721,14 @@ export class FichaComponent {
       next: (result) => {
         const actual = this.ficha();
         if (actual) this.ficha.set({ ...actual, fotoUrl: result.fotoUrl });
+        this.fotoPreview.set('');
+        this.subiendoFoto.set(false);
       },
-      error: () => this.error.set('No se pudo guardar la fotografía.'),
+      error: () => {
+        this.fotoPreview.set('');
+        this.subiendoFoto.set(false);
+        this.error.set('No se pudo guardar la fotografía. Intenta nuevamente.');
+      },
     });
   }
 

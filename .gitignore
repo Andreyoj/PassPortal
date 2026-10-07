@@ -8,6 +8,10 @@ build/
 coverage/
 *.tsbuildinfo
 
+# Variables de entorno y secretos
+*.env
+!.env.example
+
 # Logs y archivos temporales
 *.log
 npm-debug.log*

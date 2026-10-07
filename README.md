@@ -5,26 +5,97 @@ Sistema de Gestión Migratoria (SGM): plataforma interna para personal de contro
 **Desarrollador:** André Emanuel Yoj Gómez
 **Institución:** Centro Educativo Técnico Kinal, Perito en Informática
 
-## Requisitos e instalación
+## Tutorial rápido: instalar y ejecutar
 
-- Node.js 22 o posterior
-- pnpm 10 o posterior
-- MySQL 8.0 o posterior
+### 1. Instalar requisitos
+
+Instala en Windows:
+
+- Node.js 22 o posterior.
+- pnpm 10 o posterior.
+- MySQL 8.0 o posterior.
+- MySQL Workbench, recomendado para ejecutar el script de base de datos.
+
+Comprueba las versiones:
+
+```powershell
+node --version
+pnpm --version
+```
+
+### 2. Descargar las dependencias
+
+Abre PowerShell en la carpeta raíz de PassPortal y ejecuta:
 
 ```powershell
 pnpm install
 ```
 
-Ejecuta `backend/src/db/schema.sql` y luego `backend/src/db/seed.sql` en MySQL Workbench. Configura tus credenciales y variables locales directamente en `backend/.env`. `JWT_SECRET` es obligatorio y debe tener al menos 32 caracteres; genera uno localmente con `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` y guárdalo únicamente en `.env`, junto con `JWT_EXPIRES_IN=8h`.
+Este comando instala las dependencias del backend y del frontend.
 
-## Ejecución
-```bash
-pnpm install
+### 3. Crear la configuración local
+
+Copia el archivo de ejemplo:
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+```
+
+Abre `backend/.env` y completa al menos `DB_USER`, `DB_PASSWORD`, `DB_NAME` y `JWT_SECRET`. El secreto JWT debe tener mínimo 32 caracteres. Puedes generar uno con:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+### 4. Crear y cargar la base de datos
+
+1. Abre MySQL Workbench.
+2. Abre `backend/src/db/setup.sql`.
+3. Ejecuta todo el archivo.
+
+Ese único SQL crea la base `pass_portal_IN5BM`, las tablas, relaciones, datos demo, usuarios de prueba y solicitudes de movimiento.
+
+Si ya tenías una base anterior y solo necesitas agregar la tabla de solicitudes, ejecuta:
+
+```powershell
+pnpm --filter backend migrate:movement-requests
+```
+
+### 5. Iniciar el backend
+
+Abre una PowerShell en la raíz del proyecto y ejecuta:
+
+```powershell
 pnpm dev:backend
+```
+
+La API quedará disponible en `http://localhost:3000`.
+
+Comprueba que está funcionando en:
+
+```text
+http://localhost:3000/api/health
+```
+
+Debe responder indicando que la base de datos está conectada.
+
+### 6. Iniciar el frontend
+
+Abre otra PowerShell en la raíz del proyecto y ejecuta:
+
+```powershell
 pnpm dev:frontend
 ```
 
-La API queda en `http://localhost:3000` y Angular en `http://localhost:4200`.
+La aplicación Angular quedará disponible en:
+
+```text
+http://localhost:4200
+```
+
+Mantén abiertas las dos terminales mientras utilices la aplicación.
+
+### 7. Crear usuarios administrativos
 
 Para crear el primer administrador:
 
@@ -32,9 +103,7 @@ Para crear el primer administrador:
 pnpm --filter backend create-admin
 ```
 
-El script solicita usuario, nombre, correo y contraseña (mínimo 10 caracteres), y almacena únicamente el hash bcrypt en MySQL.
-
-Para crear empleados adicionales con rol:
+Para crear empleados adicionales:
 
 ```powershell
 pnpm --filter backend create-employee
@@ -42,21 +111,80 @@ pnpm --filter backend create-employee
 
 El script acepta los roles `PERSONAL` o `ADMINISTRADOR`.
 
-### Datos de demostración
+## Comandos rápidos para copiar y pegar
 
-Después de cargar `schema.sql` y `seed.sql`, ejecuta opcionalmente
-`backend/src/db/seed-demo.sql`. Este archivo agrega 40 ciudadanos ficticios,
-80 documentos, multas, restricciones y movimientos en puestos de control
-guatemaltecos. No agrega fotografías: la interfaz utiliza avatares con
-iniciales. Los datos demo pueden recargarse porque el script reemplaza su
-rango de registros (`id` 7 a 46).
+Ejecuta estos comandos desde la carpeta raíz del proyecto, en PowerShell:
 
-Para cargar diez cuentas de prueba con todos los roles, ejecuta después de
-`seed.sql`:
+### Instalar y preparar configuración
+
+```powershell
+pnpm install
+Copy-Item backend/.env.example backend/.env
+notepad backend/.env
+```
+
+Después de completar `backend/.env`, genera un secreto JWT nuevo:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+Copia el resultado en la variable `JWT_SECRET` de `backend/.env`.
+
+### Iniciar backend
+
+En una primera terminal:
+
+```powershell
+pnpm dev:backend
+```
+
+### Iniciar frontend
+
+En una segunda terminal:
+
+```powershell
+pnpm dev:frontend
+```
+
+### Comprobar la API
+
+Con el backend iniciado, en una tercera terminal:
+
+```powershell
+Invoke-WebRequest http://localhost:3000/api/health -UseBasicParsing
+```
+
+Abre la aplicación en:
 
 ```text
-backend/src/db/seed-test-users.sql
+http://localhost:4200
 ```
+
+### Crear usuarios administrativos
+
+```powershell
+pnpm --filter backend create-admin
+pnpm --filter backend create-employee
+```
+
+No pegues contraseñas reales dentro del README ni subas `backend/.env`.
+
+Los ciudadanos pueden enviar solicitudes de movimiento indicando país de origen,
+país de destino, fecha y motivo desde **Mi información migratoria**. El personal
+y los administradores las revisan desde **Solicitudes de movimiento**; al aprobar
+una solicitud se registra automáticamente en el historial migratorio y al
+rechazarla queda disponible con su motivo de resolución.
+
+### Datos de demostración
+
+`setup.sql` agrega 40 ciudadanos ficticios, 80 documentos, multas,
+restricciones y movimientos en puestos de control guatemaltecos. No agrega
+fotografías: la interfaz utiliza avatares con iniciales. Los datos demo pueden
+recargarse porque el script reemplaza su rango de registros (`id` 7 a 46).
+
+Para cargar diez cuentas de prueba con todos los roles, `setup.sql` las incluye
+automáticamente.
 
 Las cuentas `usuario1` a `usuario4`, `personal1` a `personal4` y
 `administrador1` a `administrador2` usan estas contraseñas de prueba:
@@ -93,7 +221,7 @@ se conecta a una tarjeta, banco ni pasarela externa.
 El entorno de demostración utiliza datos ficticios y no incluye fotografías; las iniciales sirven como avatar hasta que se cargue una imagen de prueba.
 
 ## Base de datos
-La aplicación usa MySQL con la base `pass_portal_IN5BM`. Configura las credenciales locales en `backend/.env` y ejecuta, en este orden, `backend/src/db/schema.sql` y `backend/src/db/seed.sql`.
+La aplicación usa MySQL con la base `pass_portal_IN5BM`. Configura las credenciales locales en `backend/.env` y ejecuta `backend/src/db/setup.sql` desde su propia carpeta.
 
 ## Scripts y verificación
 
@@ -141,6 +269,7 @@ template HTML y sus estilos CSS en el mismo archivo.
 | `frontend/src/app/components/register/register.component.ts` | Registro público de ciudadanos |
 | `frontend/src/app/components/profile/profile.component.ts` | Datos de la cuenta y cambio de contraseña |
 | `frontend/src/app/components/citizen-self/citizen-self.component.ts` | Creación de la ficha propia del ciudadano |
+| `frontend/src/app/components/movement-requests/movement-requests.component.ts` | Bandeja operativa de solicitudes y resoluciones |
 | `frontend/src/app/components/ficha/ficha.component.ts` | Ficha migratoria, foto, documentos, multas, arraigos y movimientos |
 | `frontend/src/app/components/ficha/administrative-dialog.component.ts` | Formularios de multas y restricciones |
 | `frontend/src/app/components/ciudadanos/ciudadanos.component.ts` | Búsqueda y listado de ciudadanos |
@@ -164,21 +293,20 @@ template HTML y sus estilos CSS en el mismo archivo.
 | `backend/src/router/citizen.router.ts` | Búsqueda, consulta y actualización de ciudadanos |
 | `backend/src/router/administrative.router.ts` | CRUD operativo de multas y arraigos y pago de demostración |
 | `backend/src/router/photo.router.ts` | Carga, validación y guardado permanente de fotografías |
+| `backend/src/router/movement-request.router.ts` | Solicitudes, aprobación y rechazo de movimientos |
 | `backend/src/router/alert.router.ts` | Alertas y resumen de vencimientos |
 | `backend/src/router/index.ts` | Montaje de rutas y permisos generales |
 | `backend/src/services/auth.service.ts` | Hash bcrypt, JWT, usuarios y vínculo con ficha |
 | `backend/src/services/citizen.service.ts` | CRUD de fichas, documentos, multas, restricciones y movimientos de lectura |
 | `backend/src/services/administrative.service.ts` | Altas, pagos, anulaciones y levantamiento de registros |
 | `backend/src/services/photo.service.ts` | Actualización de la ruta de fotografía y limpieza del archivo anterior |
+| `backend/src/services/movement-request.service.ts` | Persistencia y aprobación transaccional de solicitudes |
 | `backend/src/services/alert.service.ts` | Consultas de alertas documentales |
 | `backend/src/services/alert-classifier.ts` | Clasificación VERDE, AMARILLO y ROJO |
 | `backend/src/middleware/auth.middleware.ts` | Validación de JWT y autorización por rol |
 | `backend/src/utils/error-handler.ts` | Respuestas de errores controladas |
 | `backend/src/utils/http-error.ts` | Errores HTTP tipados |
-| `backend/src/db/schema.sql` | Tablas, relaciones y restricciones MySQL |
-| `backend/src/db/seed.sql` | Catálogos y datos mínimos |
-| `backend/src/db/seed-demo.sql` | Ciudadanos y datos ficticios de presentación |
-| `backend/src/db/seed-test-users.sql` | Diez cuentas de prueba y sus vínculos ciudadanos |
+| `backend/src/db/setup.sql` | Instalación completa de esquema y datos |
 
 ## Estructura
 

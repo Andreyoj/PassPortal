@@ -27,26 +27,45 @@ import type { EmpleadoListado, Rol } from '../../models/auth.model';
           <mat-form-field appearance="outline">
             <mat-label>Nombre completo</mat-label>
             <input matInput formControlName="nombreCompleto" />
+            @if (form.controls.nombreCompleto.hasError('required') && form.controls.nombreCompleto.touched) {
+              <mat-error>El nombre completo es obligatorio.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Usuario</mat-label>
             <input matInput formControlName="usuario" />
+            @if (form.controls.usuario.hasError('required') && form.controls.usuario.touched) {
+              <mat-error>El usuario es obligatorio.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Correo</mat-label>
             <input matInput formControlName="correo" />
+            @if (form.controls.correo.hasError('required') && form.controls.correo.touched) {
+              <mat-error>El correo es obligatorio.</mat-error>
+            } @else if (form.controls.correo.hasError('email') && form.controls.correo.touched) {
+              <mat-error>Ingresa un correo válido.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>DPI de ficha ciudadana (opcional)</mat-label>
             <input matInput formControlName="dpiCiudadano" placeholder="Ej. 2000000000101" />
+            @if (form.controls.dpiCiudadano.hasError('pattern') && form.controls.dpiCiudadano.touched) {
+              <mat-error>El DPI debe contener entre 8 y 20 dígitos.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Contraseña {{editandoId() ? '(opcional)' : ''}}</mat-label>
             <input matInput type="password" formControlName="password" />
+            @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+              <mat-error>La contraseña es obligatoria.</mat-error>
+            } @else if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
+              <mat-error>La contraseña debe tener al menos 10 caracteres.</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -56,6 +75,9 @@ import type { EmpleadoListado, Rol } from '../../models/auth.model';
                 <mat-option [value]="rol">{{rol}}</mat-option>
               }
             </mat-select>
+            @if (form.controls.rol.hasError('required') && form.controls.rol.touched) {
+              <mat-error>Selecciona un rol.</mat-error>
+            }
           </mat-form-field>
 
           <div class="form-actions">
@@ -246,7 +268,7 @@ export class AdminUsersComponent {
     nombreCompleto: ['', Validators.required],
     usuario: ['', Validators.required],
     correo: ['', [Validators.required, Validators.email]],
-    dpiCiudadano: [''],
+    dpiCiudadano: ['', Validators.pattern(/^\d{8,20}$/)],
     password: ['', [Validators.required, Validators.minLength(10)]],
     rol: ['USUARIO' as Rol, Validators.required]
   });
