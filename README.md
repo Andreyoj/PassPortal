@@ -33,21 +33,7 @@ pnpm install
 
 Este comando instala las dependencias del backend y del frontend.
 
-### 3. Crear la configuración local
-
-Copia el archivo de ejemplo:
-
-```powershell
-Copy-Item backend/.env.example backend/.env
-```
-
-Abre `backend/.env` y completa al menos `DB_USER`, `DB_PASSWORD`, `DB_NAME` y `JWT_SECRET`. El secreto JWT debe tener mínimo 32 caracteres. Puedes generar uno con:
-
-```powershell
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
-
-### 4. Crear y cargar la base de datos
+### 3. Crear y cargar la base de datos
 
 1. Abre MySQL Workbench.
 2. Abre `backend/src/db/setup.sql`.
@@ -61,7 +47,7 @@ Si ya tenías una base anterior y solo necesitas agregar la tabla de solicitudes
 pnpm --filter backend migrate:movement-requests
 ```
 
-### 5. Iniciar el backend
+### 4. Iniciar el backend
 
 Abre una PowerShell en la raíz del proyecto y ejecuta:
 
@@ -79,7 +65,7 @@ http://localhost:3000/api/health
 
 Debe responder indicando que la base de datos está conectada.
 
-### 6. Iniciar el frontend
+### 5. Iniciar el frontend
 
 Abre otra PowerShell en la raíz del proyecto y ejecuta:
 
