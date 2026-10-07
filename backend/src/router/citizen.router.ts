@@ -6,12 +6,12 @@ import { requireRole } from '../middleware/auth.middleware';
 
 export const citizenRouter = Router();
 
-citizenRouter.get('/', async (req, res) => {
+citizenRouter.get('/', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const query = typeof req.query.q === 'string' ? req.query.q : undefined;
 	sendOk(res, await buscarCiudadanos(query));
 });
 
-citizenRouter.get('/:id', async (req, res) => {
+citizenRouter.get('/:id', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
 	const id = Number(req.params.id);
 	if (!Number.isSafeInteger(id) || id <= 0) {
 		throw new HttpError(400, 'ID_CIUDADANO_INVALIDO', 'El id del ciudadano debe ser un entero positivo.');

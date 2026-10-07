@@ -33,7 +33,7 @@ export async function autenticar(usuario: string, password: string): Promise<{ e
 	const row = rows[0];
 	if (!row || !(await bcrypt.compare(password, row.password_hash))) return null;
 	const empleado = mapEmployee(row);
-	const payload: JwtPayload = { sub: String(empleado.id), usuario: empleado.usuario, rol: empleado.rol };
+	const payload: JwtPayload = { sub: String(empleado.id), usuario: empleado.usuario, rol: empleado.rol, ciudadanoId: empleado.ciudadanoId };
 	const token = jwt.sign(payload, secret(), { expiresIn: (process.env.JWT_EXPIRES_IN ?? '8h') as jwt.SignOptions['expiresIn'] });
 	return { empleado, token };
 }

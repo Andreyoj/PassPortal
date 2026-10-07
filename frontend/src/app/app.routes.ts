@@ -12,7 +12,8 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'perfil', title: 'Mi perfil · Pass Portal', loadComponent: () => import('./components/profile/profile.component').then((m) => m.ProfileComponent) },
-      { path: 'mi-informacion', canActivate: [roleGuard('USUARIO')], title: 'Mi información migratoria · Pass Portal', loadComponent: () => import('./components/ficha/ficha.component').then((m) => m.FichaComponent) },
+      { path: 'mi-informacion', canActivate: [roleGuard('USUARIO')], title: 'Mi información migratoria · Pass Portal', loadComponent: () => import('./components/citizen-self/citizen-self.component').then((m) => m.CitizenSelfComponent) },
+      { path: 'mi-informacion/ficha', canActivate: [roleGuard('USUARIO')], title: 'Mi ficha migratoria · Pass Portal', loadComponent: () => import('./components/ficha/ficha.component').then((m) => m.FichaComponent) },
       { path: 'admin/usuarios', canActivate: [adminGuard], title: 'Gestión de usuarios · Pass Portal', loadComponent: () => import('./components/admin-users/admin-users.component').then((m) => m.AdminUsersComponent) },
       {
         path: 'dashboard',

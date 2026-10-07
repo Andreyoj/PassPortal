@@ -2,6 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authenticate } from '../middleware/auth.middleware';
 import { administrarEmpleado, autenticar, listarEmpleados, obtenerEmpleado, obtenerFichaPropia, registrarUsuario } from '../services/auth.service';
+import { actualizarDatosFicha, crearFichaCiudadano, type DatosFichaCiudadano } from '../services/citizen.service';
 import { HttpError } from '../utils/http-error';
 import { sendOk } from '../utils/http-response';
 import { credencialesCompletas } from '../utils/auth-validation';
@@ -51,6 +52,34 @@ authRouter.get('/me/ficha', authenticate, async (req, res) => {
 	const ficha = await obtenerFichaPropia(req.empleado!.id);
 	if (!ficha) throw new HttpError(404, 'FICHA_NO_VINCULADA', 'Tu cuenta todavía no está vinculada a una ficha ciudadana. Solicita ayuda al administrador.');
 	sendOk(res, ficha);
+});
+
+function datosFicha(body: unknown): DatosFichaCiudadano {
+	const value = body as Record<string, unknown>;
+	const datos = {
+		dpi: String(value.dpi ?? '').trim(),
+		nombres: String(value.nombres ?? '').trim(),
+		apellidos: String(value.apellidos ?? '').trim(),
+		fechaNacimiento: String(value.fechaNacimiento ?? '').trim(),
+		sexo: value.sexo,
+		nacionalidad: String(value.nacionalidad ?? '').trim(),
+		telefono: value.telefono === undefined ? undefined : String(value.telefono).trim(),
+		correo: value.correo === undefined ? undefined : String(value.correo).trim(),
+		direccion: value.direccion === undefined ? undefined : String(value.direccion).trim(),
+	};
+	if (!/^\d{8,20}$/.test(datos.dpi) || !datos.nombres || !datos.apellidos || !/^\d{4}-\d{2}-\d{2}$/.test(datos.fechaNacimiento) || !['M', 'F', 'X'].includes(String(datos.sexo)) || !datos.nacionalidad) {
+		throw new HttpError(400, 'FICHA_INVALIDA', 'Completa DPI, nombres, apellidos, fecha de nacimiento, sexo y nacionalidad.');
+	}
+	return { ...datos, sexo: datos.sexo as DatosFichaCiudadano['sexo'] };
+}
+
+authRouter.put('/me/ficha', authenticate, async (req, res) => {
+	if (req.empleado?.rol !== 'USUARIO') throw new HttpError(403, 'PERMISOS_INSUFICIENTES', 'Solo un ciudadano puede editar su ficha desde esta pantalla.');
+	const datos = datosFicha(req.body);
+	const ficha = req.empleado.ciudadanoId
+		? await actualizarDatosFicha(req.empleado.ciudadanoId, datos, req.empleado.id)
+		: await crearFichaCiudadano(datos, req.empleado.id);
+	sendOk(res, ficha, req.empleado.ciudadanoId ? 200 : 201);
 });
 
 authRouter.put('/me', authenticate, async (req, res) => {

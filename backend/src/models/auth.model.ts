@@ -13,6 +13,7 @@ export interface JwtPayload {
 	sub: string;
 	usuario: string;
 	rol: NombreRol;
+	ciudadanoId: number | null;
 }
 
 export interface EmpleadoListado extends EmpleadoAutenticado {

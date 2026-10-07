@@ -57,8 +57,16 @@ administrativeRouter.post('/ciudadanos/:id/multas', requireRole('PERSONAL', 'ADM
 	sendOk(res, await crearMulta(ciudadanoId, multa, req.empleado!.id), 201);
 });
 
-administrativeRouter.patch('/multas/:id/pagar', requireRole('PERSONAL', 'ADMINISTRADOR'), async (req, res) => {
+administrativeRouter.patch('/multas/:id/pagar', async (req, res) => {
 	const id = enteroPositivo(req.params.id, 'multa');
+	const ciudadanoId = req.empleado?.rol === 'USUARIO' ? req.empleado.ciudadanoId ?? -1 : undefined;
+	if (req.empleado?.rol === 'USUARIO' && ciudadanoId === -1) throw new HttpError(403, 'FICHA_NO_VINCULADA', 'Tu cuenta no tiene una ficha vinculada.');
+	if (req.empleado?.rol === 'USUARIO' || req.empleado?.rol === 'PERSONAL' || req.empleado?.rol === 'ADMINISTRADOR') {
+		const multa = await pagarMulta(id, ciudadanoId);
+		if (!multa) throw new HttpError(404, 'MULTA_NO_ENCONTRADA', 'La multa no existe, no está pendiente o no pertenece a tu ficha.');
+		sendOk(res, multa);
+		return;
+	}
 	const multa = await pagarMulta(id);
 	if (!multa) throw new HttpError(404, 'MULTA_NO_ENCONTRADA', 'La multa no existe o ya no está pendiente.');
 	sendOk(res, multa);

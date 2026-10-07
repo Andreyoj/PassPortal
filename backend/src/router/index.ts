@@ -13,6 +13,6 @@ apiRouter.use('/health', healthRouter);
 apiRouter.use('/auth', authRouter);
 apiRouter.use(authenticate);
 apiRouter.use('/alertas', requireRole('PERSONAL', 'ADMINISTRADOR'), alertRouter);
-apiRouter.use('/ciudadanos', requireRole('PERSONAL', 'ADMINISTRADOR'), citizenRouter);
+apiRouter.use('/ciudadanos', citizenRouter);
 apiRouter.use(administrativeRouter);
 apiRouter.use(photoRouter);

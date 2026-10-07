@@ -51,8 +51,12 @@ const cargarUnaFoto: RequestHandler = (req, res, next): void => {
 
 export const photoRouter = Router();
 
-photoRouter.post('/ciudadanos/:id/foto', requireRole('PERSONAL', 'ADMINISTRADOR'), cargarUnaFoto, async (req, res) => {
+photoRouter.post('/ciudadanos/:id/foto', requireRole('USUARIO', 'PERSONAL', 'ADMINISTRADOR'), cargarUnaFoto, async (req, res) => {
 	const id = Number(req.params.id);
+	if (req.empleado?.rol === 'USUARIO' && req.empleado.ciudadanoId !== id) {
+		if (req.file) await fs.rm(req.file.path, { force: true });
+		throw new HttpError(403, 'PERMISOS_INSUFICIENTES', 'Solo puedes cambiar la foto de tu propia ficha.');
+	}
 	if (!Number.isSafeInteger(id) || id <= 0) {
 		if (req.file) await fs.rm(req.file.path, { force: true });
 		throw new HttpError(400, 'ID_CIUDADANO_INVALIDO', 'El id del ciudadano debe ser un entero positivo.');

@@ -81,6 +81,45 @@ export interface DatosContacto {
 	direccion?: string;
 }
 
+export interface DatosFichaCiudadano extends DatosContacto {
+	dpi: string;
+	nombres: string;
+	apellidos: string;
+	fechaNacimiento: string;
+	sexo: Ciudadano['sexo'];
+	nacionalidad: string;
+}
+
+export async function crearFichaCiudadano(datos: DatosFichaCiudadano, empleadoId: number): Promise<FichaCiudadano> {
+	const connection = await pool.getConnection();
+	try {
+		await connection.beginTransaction();
+		const [result] = await connection.execute<ResultSetHeader>(
+			`INSERT INTO ciudadanos (dpi, nombres, apellidos, fecha_nacimiento, sexo, nacionalidad, telefono, correo, direccion)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			[datos.dpi, datos.nombres, datos.apellidos, datos.fechaNacimiento, datos.sexo, datos.nacionalidad, datos.telefono ?? null, datos.correo ?? null, datos.direccion ?? null],
+		);
+		await connection.execute('UPDATE empleados SET ciudadano_id = ? WHERE id = ?', [result.insertId, empleadoId]);
+		await connection.commit();
+		return (await obtenerFichaCiudadano(result.insertId))!;
+	} catch (error) {
+		await connection.rollback();
+		throw error;
+	} finally {
+		connection.release();
+	}
+}
+
+export async function actualizarDatosFicha(id: number, datos: DatosFichaCiudadano, empleadoId: number): Promise<FichaCiudadano | null> {
+	const [result] = await pool.execute<ResultSetHeader>(
+		`UPDATE ciudadanos SET dpi=?, nombres=?, apellidos=?, fecha_nacimiento=?, sexo=?, nacionalidad=?, telefono=?, correo=?, direccion=? WHERE id=?`,
+		[datos.dpi, datos.nombres, datos.apellidos, datos.fechaNacimiento, datos.sexo, datos.nacionalidad, datos.telefono ?? null, datos.correo ?? null, datos.direccion ?? null, id],
+	);
+	if (!result.affectedRows) return null;
+	await pool.execute(`INSERT INTO historial_estados (ciudadano_id, entidad, estado_nuevo, detalle, empleado_id) VALUES (?, 'CIUDADANO', 'ACTUALIZADO', 'Ficha ciudadana actualizada', ?)`, [id, empleadoId]);
+	return obtenerFichaCiudadano(id);
+}
+
 function mapCitizen(row: CitizenRow): Ciudadano {
 	return {
 		id: row.id,

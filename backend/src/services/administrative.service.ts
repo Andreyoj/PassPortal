@@ -89,10 +89,10 @@ export async function crearMulta(ciudadanoId: number, multa: NuevaMulta, emplead
 	return mapFine(rows[0]);
 }
 
-export async function pagarMulta(id: number): Promise<Multa | null> {
+export async function pagarMulta(id: number, ciudadanoId?: number): Promise<Multa | null> {
 	const [result] = await pool.query<ResultSetHeader>(
-		"UPDATE multas SET estado = 'PAGADA', fecha_pago = CURDATE() WHERE id = :id AND estado = 'PENDIENTE'",
-		{ id },
+		"UPDATE multas SET estado = 'PAGADA', fecha_pago = CURDATE() WHERE id = :id AND estado = 'PENDIENTE' AND (:ciudadanoId IS NULL OR ciudadano_id = :ciudadanoId)",
+		{ id, ciudadanoId: ciudadanoId ?? null },
 	);
 	if (result.affectedRows === 0) return null;
 	const [rows] = await pool.query<FineRow[]>('SELECT * FROM multas WHERE id = :id', { id });
