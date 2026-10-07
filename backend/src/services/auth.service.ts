@@ -5,13 +5,14 @@ import { pool } from '../db';
 import type { EmpleadoAutenticado, EmpleadoListado, JwtPayload } from '../models/auth.model';
 import type { NombreRol } from '../models/domain.model';
 import { HttpError } from '../utils/http-error';
+import { obtenerFichaCiudadano } from './citizen.service';
 
 interface EmployeeRow extends RowDataPacket {
-	id: number; usuario: string; nombre_completo: string; correo: string; password_hash: string; rol: NombreRol; activo: number; creado_en: string;
+	id: number; usuario: string; nombre_completo: string; correo: string; password_hash: string; rol: NombreRol; ciudadano_id: number | null; activo: number; creado_en: string;
 }
 
 function mapEmployee(row: EmployeeRow): EmpleadoAutenticado {
-	return { id: row.id, usuario: row.usuario, nombreCompleto: row.nombre_completo, correo: row.correo, rol: row.rol };
+	return { id: row.id, usuario: row.usuario, nombreCompleto: row.nombre_completo, correo: row.correo, rol: row.rol, ciudadanoId: row.ciudadano_id };
 }
 
 function mapListedEmployee(row: EmployeeRow): EmpleadoListado {
@@ -70,16 +71,22 @@ export async function listarEmpleados(): Promise<EmpleadoListado[]> {
 	return rows.map(mapListedEmployee);
 }
 
-export async function administrarEmpleado(id: number, datos: { usuario?: string; nombreCompleto: string; correo: string; rol?: NombreRol; activo?: boolean; password?: string }): Promise<EmpleadoListado | null> {
+export async function obtenerFichaPropia(id: number) {
+	const empleado = await obtenerEmpleado(id);
+	return empleado?.ciudadanoId ? obtenerFichaCiudadano(empleado.ciudadanoId) : null;
+}
+
+export async function administrarEmpleado(id: number, datos: { usuario?: string; nombreCompleto: string; correo: string; rol?: NombreRol; activo?: boolean; password?: string; ciudadanoId?: number | null }): Promise<EmpleadoListado | null> {
 	const connection = await pool.getConnection();
 	try {
 		await connection.beginTransaction();
 		const updates: string[] = ['nombre_completo = ?', 'correo = ?'];
-		const params: Array<string | number> = [datos.nombreCompleto, datos.correo];
+		const params: Array<string | number | null> = [datos.nombreCompleto, datos.correo];
 		if (datos.usuario) { updates.push('usuario = ?'); params.push(datos.usuario); }
 		if (datos.rol) { updates.push('rol_id = (SELECT id FROM roles WHERE nombre = ?)'); params.push(datos.rol); }
 		if (datos.activo !== undefined) { updates.push('activo = ?'); params.push(datos.activo ? 1 : 0); }
 		if (datos.password) { updates.push('password_hash = ?'); params.push(await bcrypt.hash(datos.password, 12)); }
+		if (datos.ciudadanoId !== undefined) { updates.push('ciudadano_id = ?'); params.push(datos.ciudadanoId); }
 		params.push(id);
 		await connection.execute(`UPDATE empleados SET ${updates.join(', ')} WHERE id = ?`, params);
 		await connection.commit();

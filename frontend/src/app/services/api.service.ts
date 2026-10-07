@@ -29,6 +29,10 @@ export class ApiService {
     return this.http.get<ApiSuccessResponse<FichaCiudadano>>(`${this.baseUrl}/ciudadanos/${id}`).pipe(map((response) => response.data));
   }
 
+  obtenerMiFicha(): Observable<FichaCiudadano> {
+    return this.http.get<ApiSuccessResponse<FichaCiudadano>>(`${this.baseUrl}/auth/me/ficha`).pipe(map((response) => response.data));
+  }
+
   subirFoto(id: number, foto: File): Observable<{ fotoUrl: string }> {
     const body = new FormData();
     body.append('foto', foto);

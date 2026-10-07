@@ -49,6 +49,7 @@ export class ShellComponent {
     { ruta: '/dashboard', etiqueta: 'Panel de alertas', icono: 'notifications_active', roles: ['PERSONAL', 'ADMINISTRADOR'] },
     { ruta: '/ciudadanos', etiqueta: 'Ciudadanos', icono: 'badge', roles: ['PERSONAL', 'ADMINISTRADOR'] },
     { ruta: '/perfil', etiqueta: 'Mi perfil', icono: 'account_circle' },
+    { ruta: '/mi-informacion', etiqueta: 'Mi información migratoria', icono: 'folder_shared', roles: ['USUARIO'] },
     { ruta: '/admin/usuarios', etiqueta: 'Usuarios', icono: 'manage_accounts', roles: ['ADMINISTRADOR'] },
   ];
   protected cerrarEnMovil(): void { if (this.esMovil()) void this.menu().close(); }

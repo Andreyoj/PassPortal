@@ -30,7 +30,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
 			throw new Error('Payload inválido');
 		}
 		const datos = payload as JwtPayload;
-		req.empleado = { id: Number(datos.sub), usuario: datos.usuario, nombreCompleto: '', correo: '', rol: datos.rol };
+		req.empleado = { id: Number(datos.sub), usuario: datos.usuario, nombreCompleto: '', correo: '', rol: datos.rol, ciudadanoId: null };
 		next();
 	} catch {
 		next(new HttpError(401, 'TOKEN_INVALIDO', 'La sesión no es válida o ha expirado.'));

@@ -6,6 +6,7 @@ export interface EmpleadoAutenticado {
 	nombreCompleto: string;
 	correo: string;
 	rol: NombreRol;
+	ciudadanoId: number | null;
 }
 
 export interface JwtPayload {

@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS empleados (
   usuario VARCHAR(40) NOT NULL,
   correo VARCHAR(120) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
+  ciudadano_id INT UNSIGNED NULL,
   activo TINYINT(1) NOT NULL DEFAULT 1,
   creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   actualizado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -59,6 +60,9 @@ CREATE TABLE IF NOT EXISTS ciudadanos (
   UNIQUE KEY uq_ciudadanos_dpi (dpi),
   KEY idx_ciudadanos_nombre (apellidos, nombres)
 ) ENGINE=InnoDB;
+
+ALTER TABLE empleados
+  ADD CONSTRAINT fk_empleados_ciudadano FOREIGN KEY (ciudadano_id) REFERENCES ciudadanos (id);
 
 -- ------------------------------------------------------------
 -- Documentos migratorios

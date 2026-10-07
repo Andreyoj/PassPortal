@@ -59,9 +59,10 @@ backend/src/db/seed-test-users.sql
 ```
 
 Las cuentas `usuario1` a `usuario4`, `personal1` a `personal4` y
-`administrador1` a `administrador2` usan como
-contraseña el mismo nombre de usuario seguido de `@passportal.com`. Son
-credenciales exclusivas para desarrollo local.
+`administrador1` a `administrador2` usan estas contraseñas de prueba:
+`Usuario2026@`, `Personal2026@` y `Admin:2026@`, respectivamente. Las primeras
+cuatro cuentas ciudadanas quedan vinculadas a las fichas 1 a 4 para mostrar su
+información migratoria. Son credenciales exclusivas para desarrollo local.
 
 ## Recorrido de presentación
 
@@ -103,6 +104,11 @@ Todas las rutas `/api`, salvo `/api/health` y `/api/auth/login`, requieren `Auth
 | `POST /api/auth/register` | Cuenta normal | Cuenta normal | Cuenta normal |
 | `GET/POST/PUT /api/auth/users` | No | No | Sí |
 | `PUT /api/auth/me` | Sí | Sí | Sí |
+
+Las cuentas con rol `USUARIO` son ciudadanos y tienen la pestaña
+**Mi información migratoria**. El administrador las vincula a una ficha usando
+el DPI desde **Usuarios y roles**; desde allí cada ciudadano solo puede ver su
+propia ficha.
 
 ## Estructura
 
