@@ -35,6 +35,14 @@ pnpm --filter backend create-admin
 
 El script solicita usuario, nombre, correo y contraseña (mínimo 10 caracteres), y almacena únicamente el hash bcrypt en MySQL.
 
+Para crear empleados adicionales con rol:
+
+```powershell
+pnpm --filter backend create-employee
+```
+
+El script acepta los roles `OPERADOR`, `SUPERVISOR` o `ADMINISTRADOR`.
+
 ## Base de datos
 La aplicación usa MySQL con la base `pass_portal_IN5BM`. Configura las credenciales locales en `backend/.env` y ejecuta, en este orden, `backend/src/db/schema.sql` y `backend/src/db/seed.sql`.
 
