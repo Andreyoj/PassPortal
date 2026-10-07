@@ -5,7 +5,7 @@ export type EstadoAlerta = 'VERDE' | 'AMARILLO' | 'ROJO';
 export type EstadoMulta = 'PENDIENTE' | 'PAGADA' | 'ANULADA';
 export type TipoRestriccion = 'ARRAIGO' | 'BLOQUEO_LEGAL' | 'RESTRICCION_SALIDA';
 export type TipoMovimiento = 'ENTRADA' | 'SALIDA';
-export type NombreRol = 'ADMINISTRADOR' | 'SUPERVISOR' | 'OPERADOR';
+export type NombreRol = 'ADMINISTRADOR' | 'SUPERVISOR' | 'OPERADOR' | 'USUARIO';
 
 export interface Rol {
 	id: number;

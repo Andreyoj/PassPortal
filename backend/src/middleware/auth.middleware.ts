@@ -26,7 +26,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
 	if (!token) { next(new HttpError(401, 'NO_AUTORIZADO', 'Se requiere autenticación.')); return; }
 	try {
 		const payload = jwt.verify(token, secretoJwt());
-		if (typeof payload !== 'object' || payload === null || typeof payload.sub !== 'string' || typeof payload.usuario !== 'string' || !['OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'].includes(payload.rol as string)) {
+		if (typeof payload !== 'object' || payload === null || typeof payload.sub !== 'string' || typeof payload.usuario !== 'string' || !['OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR', 'USUARIO'].includes(payload.rol as string)) {
 			throw new Error('Payload inválido');
 		}
 		const datos = payload as JwtPayload;

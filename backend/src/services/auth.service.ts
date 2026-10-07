@@ -2,15 +2,20 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { RowDataPacket } from 'mysql2';
 import { pool } from '../db';
-import type { EmpleadoAutenticado, JwtPayload } from '../models/auth.model';
+import type { EmpleadoAutenticado, EmpleadoListado, JwtPayload } from '../models/auth.model';
 import type { NombreRol } from '../models/domain.model';
+import { HttpError } from '../utils/http-error';
 
 interface EmployeeRow extends RowDataPacket {
-	id: number; usuario: string; nombre_completo: string; correo: string; password_hash: string; rol: NombreRol; activo: number;
+	id: number; usuario: string; nombre_completo: string; correo: string; password_hash: string; rol: NombreRol; activo: number; creado_en: string;
 }
 
 function mapEmployee(row: EmployeeRow): EmpleadoAutenticado {
 	return { id: row.id, usuario: row.usuario, nombreCompleto: row.nombre_completo, correo: row.correo, rol: row.rol };
+}
+
+function mapListedEmployee(row: EmployeeRow): EmpleadoListado {
+	return { ...mapEmployee(row), activo: Boolean(row.activo), creadoEn: String(row.creado_en) };
 }
 
 function secret(): string {
@@ -38,4 +43,50 @@ export async function obtenerEmpleado(id: number): Promise<EmpleadoAutenticado |
 		{ id },
 	);
 	return rows[0] ? mapEmployee(rows[0]) : null;
+}
+
+export async function registrarUsuario(datos: { usuario: string; nombreCompleto: string; correo: string; password: string }): Promise<EmpleadoAutenticado> {
+	const hash = await bcrypt.hash(datos.password, 12);
+	try {
+		const [result] = await pool.execute(
+			`INSERT INTO empleados (rol_id, nombre_completo, usuario, correo, password_hash)
+			 SELECT id, :nombreCompleto, :usuario, :correo, :hash FROM roles WHERE nombre = 'USUARIO'`,
+			{ ...datos, hash },
+		);
+		const id = Number((result as { insertId: number }).insertId);
+		const empleado = await obtenerEmpleado(id);
+		if (!empleado) throw new Error('No se pudo recuperar el usuario creado.');
+		return empleado;
+	} catch (error) {
+		if (typeof error === 'object' && error !== null && 'code' in error && (error as { code?: string }).code === 'ER_DUP_ENTRY') {
+			throw new HttpError(409, 'USUARIO_DUPLICADO', 'El usuario o correo ya está registrado.');
+		}
+		throw error;
+	}
+}
+
+export async function listarEmpleados(): Promise<EmpleadoListado[]> {
+	const [rows] = await pool.query<EmployeeRow[]>(`SELECT e.*, r.nombre AS rol FROM empleados e JOIN roles r ON r.id = e.rol_id ORDER BY e.nombre_completo`);
+	return rows.map(mapListedEmployee);
+}
+
+export async function administrarEmpleado(id: number, datos: { usuario?: string; nombreCompleto: string; correo: string; rol?: NombreRol; activo?: boolean; password?: string }): Promise<EmpleadoListado | null> {
+	const connection = await pool.getConnection();
+	try {
+		await connection.beginTransaction();
+		const updates: string[] = ['nombre_completo = ?', 'correo = ?'];
+		const params: Array<string | number> = [datos.nombreCompleto, datos.correo];
+		if (datos.usuario) { updates.push('usuario = ?'); params.push(datos.usuario); }
+		if (datos.rol) { updates.push('rol_id = (SELECT id FROM roles WHERE nombre = ?)'); params.push(datos.rol); }
+		if (datos.activo !== undefined) { updates.push('activo = ?'); params.push(datos.activo ? 1 : 0); }
+		if (datos.password) { updates.push('password_hash = ?'); params.push(await bcrypt.hash(datos.password, 12)); }
+		params.push(id);
+		await connection.execute(`UPDATE empleados SET ${updates.join(', ')} WHERE id = ?`, params);
+		await connection.commit();
+		const [rows] = await pool.execute<EmployeeRow[]>(`SELECT e.*, r.nombre AS rol FROM empleados e JOIN roles r ON r.id = e.rol_id WHERE e.id = ?`, [id]);
+		return rows[0] ? mapListedEmployee(rows[0]) : null;
+	} catch (error) {
+		await connection.rollback();
+		throw error;
+	} finally { connection.release(); }
 }

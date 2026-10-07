@@ -51,6 +51,18 @@ guatemaltecos. No agrega fotografías: la interfaz utiliza avatares con
 iniciales. Los datos demo pueden recargarse porque el script reemplaza su
 rango de registros (`id` 7 a 46).
 
+Para cargar diez cuentas de prueba con todos los roles, ejecuta después de
+`seed.sql`:
+
+```text
+backend/src/db/seed-test-users.sql
+```
+
+Las cuentas `usuario1` a `usuario4`, `operador1` a `operador2`,
+`supervisor1` a `supervisor2` y `administrador1` a `administrador2` usan como
+contraseña el mismo nombre de usuario seguido de `@passportal.com`. Son
+credenciales exclusivas para desarrollo local.
+
 ## Recorrido de presentación
 
 1. Inicia sesión con un empleado creado por `create-admin` o `create-employee`.
@@ -88,12 +100,17 @@ Todas las rutas `/api`, salvo `/api/health` y `/api/auth/login`, requieren `Auth
 | `PATCH /api/multas/:id/anular` | No | Sí | Sí |
 | `POST /api/ciudadanos/:id/arraigos` y levantar | No | Sí | Sí |
 | `GET /api/auth/me` | Sesión | Sesión | Sesión |
+| `POST /api/auth/register` | Cuenta normal | Cuenta normal | Cuenta normal |
+| `GET/POST/PUT /api/auth/users` | No | No | Sí |
+| `PUT /api/auth/me` | Sí | Sí | Sí |
 
 ## Estructura
 
 - `backend/src`: API, middleware, rutas y servicios.
 - `backend/src/db`: esquema y datos de ejemplo.
 - `frontend/src/app`: rutas, componentes, modelos y servicios Angular.
+- `frontend/src/app/components/profile`: perfil personal editable.
+- `frontend/src/app/components/admin-users`: gestión administrativa de cuentas.
 - `backend/uploads/fotos`: fotografías cargadas.
 
 ## Limitaciones conocidas

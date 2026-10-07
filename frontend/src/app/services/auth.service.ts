@@ -21,6 +21,7 @@ export class AuthService {
 	}
 	logout(): void { sessionStorage.removeItem('passportal_token'); sessionStorage.removeItem('passportal_empleado'); this.empleado.set(null); this.autenticado.set(false); void this.router.navigate(['/login']); }
 	tieneRol(...roles: Rol[]): boolean { const rol = this.empleado()?.rol; return rol !== undefined && roles.includes(rol); }
+	esAdministrador(): boolean { return this.empleado()?.rol === 'ADMINISTRADOR'; }
 	token(): string | null { return sessionStorage.getItem('passportal_token'); }
 	private leerEmpleado(): EmpleadoAutenticado | null { try { const value = sessionStorage.getItem('passportal_empleado'); return value ? JSON.parse(value) as EmpleadoAutenticado : null; } catch { return null; } }
 }

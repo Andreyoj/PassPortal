@@ -12,7 +12,7 @@ import { map } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { colorAvatar, iniciales } from '../../utils/presentation';
 
-interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
+interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; roles?: readonly string[]; }
 
 @Component({
   selector: 'app-shell',
@@ -23,9 +23,9 @@ interface EnlaceMenu { ruta: string; etiqueta: string; icono: string; }
         <div class="shell__marca"><img src="/images/pass-portal-mark.svg" alt="" /><div><strong>Pass Portal</strong><span>Gestión migratoria</span></div></div>
         <mat-nav-list>
           @for (enlace of enlaces; track enlace.ruta) {
-            <a mat-list-item [routerLink]="enlace.ruta" routerLinkActive="shell__enlace--activo" (click)="cerrarEnMovil()">
+            @if (!enlace.roles || enlace.roles.includes(auth.empleado()?.rol ?? '')) { <a mat-list-item [routerLink]="enlace.ruta" routerLinkActive="shell__enlace--activo" (click)="cerrarEnMovil()">
               <mat-icon matListItemIcon aria-hidden="true">{{ enlace.icono }}</mat-icon><span matListItemTitle>{{ enlace.etiqueta }}</span>
-            </a>
+            </a> }
           }
         </mat-nav-list>
       </mat-sidenav>
@@ -46,8 +46,10 @@ export class ShellComponent {
   private readonly menu = viewChild.required<MatSidenav>('menu');
   protected readonly esMovil = toSignal(this.breakpoint.observe('(max-width: 960px)').pipe(map((estado) => estado.matches)), { initialValue: false });
   protected readonly enlaces: readonly EnlaceMenu[] = [
-    { ruta: '/dashboard', etiqueta: 'Panel de alertas', icono: 'notifications_active' },
-    { ruta: '/ciudadanos', etiqueta: 'Ciudadanos', icono: 'badge' },
+    { ruta: '/dashboard', etiqueta: 'Panel de alertas', icono: 'notifications_active', roles: ['OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'] },
+    { ruta: '/ciudadanos', etiqueta: 'Ciudadanos', icono: 'badge', roles: ['OPERADOR', 'SUPERVISOR', 'ADMINISTRADOR'] },
+    { ruta: '/perfil', etiqueta: 'Mi perfil', icono: 'account_circle' },
+    { ruta: '/admin/usuarios', etiqueta: 'Usuarios', icono: 'manage_accounts', roles: ['ADMINISTRADOR'] },
   ];
   protected cerrarEnMovil(): void { if (this.esMovil()) void this.menu().close(); }
   protected iniciales(): string {
